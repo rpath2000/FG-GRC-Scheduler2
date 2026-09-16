@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Instrument Form - GRC Instrument Scheduler</title>
+<style>
+:root {
+  --un-background-01: #ffffff;
+  --un-background-02: #f8f9fa;
+  --un-background-inverse: #071D49;
+  --un-text-default: #1a1a1a;
+  --un-text-muted: #6c757d;
+  --un-text-inverse: #ffffff;
+  --un-primary-default: #0066cc;
+  --un-primary-hover: #0052a3;
+  --un-primary-pressed: #003d7a;
+  --un-brand-500: #0066cc;
+  --un-brand-700: #071D49;
+  --un-error-default: #dc3545;
+  --un-success-default: #28a745;
+  --un-warning-default: #ffc107;
+  --un-info-default: #17a2b8;
+  --un-border-color-container: #dee2e6;
+  --un-border-color-input: #ced4da;
+  --un-border-color-separator: #e9ecef;
+  --un-focus-color: #0066cc;
+  --un-focus-width: 3px;
+  --un-focus-offset: 2px;
+  --un-font-family-primary: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --un-font-family-mono: 'Courier New', monospace;
+  --un-font-weight-primary-regular: 400;
+  --un-font-weight-primary-bold: 600;
+  --un-font-weight-primary-light: 300;
+  --un-typography-title-h1-font-size: 2rem;
+  --un-typography-title-h2-font-size: 1.5rem;
+  --un-typography-body-font-size: 1rem;
+  --un-typography-caption-font-size: 0.875rem;
+  --un-radius-small: 4px;
+  --un-radius-medium: 6px;
+  --un-radius-large: 8px;
+  --un-space-card-body-horizontal: 1.5rem;
+  --un-space-textinput-horizontal: 0.75rem;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--un-font-family-primary);
+  font-size: var(--un-typography-body-font-size);
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+  line-height: 1.5;
+}
+
+.unity-theme {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: var(--un-background-01);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  padding: 1rem 2rem;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-badge {
+  width: 40px;
+  height: 40px;
+  background: var(--un-brand-700);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--un-text-inverse);
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 1.25rem;
+}
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-brand-700);
+}
+
+nav ul {
+  display: flex;
+  list-style: none;
+  gap: 2rem;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--un-text-default);
+  font-weight: var(--un-font-weight-primary-regular);
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+nav a:hover:not(.disabled) {
+  color: var(--un-primary-default);
+}
+
+nav a.active {
+  color: var(--un-primary-default);
+  border-bottom-color: var(--un-primary-default);
+}
+
+nav a.disabled {
+  color: var(--un-text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--un-text-muted);
+  font-size: var(--un-typography-caption-font-size);
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--un-background-02);
+  border: 2px solid var(--un-border-color-container);
+}
+
+main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: var(--un-typography-title-h1-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-brand-700);
+  margin-bottom: 0.5rem;
+}
+
+.page-subtitle {
+  color: var(--un-text-muted);
+  font-size: var(--un-typography-body-font-size);
+}
+
+.form-card {
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-medium);
+  padding: var(--un-space-card-body-horizontal);
+  max-width: 800px;
+}
+
+.utc-notice {
+  background: var(--un-background-02);
+  border-left: 4px solid var(--un-info-default);
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  font-size: var(--un-typography-caption-font-size);
+  color: var(--un-text-muted);
+}
+
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section-title {
+  font-size: var(--un-typography-title-h2-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-brand-700);
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid var(--un-border-color-separator);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-row.full-width {
+  grid-template-columns: 1fr;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+label {
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+  font-size: var(--un-typography-body-font-size);
+}
+
+label .required {
+  color: var(--un-error-default);
+  margin-left: 0.25rem;
+}
+
+input[type="text"],
+input[type="date"],
+select,
+textarea {
+  padding: var(--un-space-textinput-horizontal);
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+  font-family: var(--un-font-family-primary);
+  font-size: var(--un-typography-body-font-size);
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus,
+input[type="date"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: var(--un-focus-color);
+  box-shadow: 0 0 0 var(--un-focus-width) rgba(0, 102, 204, 0.1);
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+.field-hint {
+  font-size: var(--un-typography-caption-font-size);
+  color: var(--un-text-muted);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.color-input-group {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+input[type="color"] {
+  width: 60px;
+  height: 40px;
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+  cursor: pointer;
+}
+
+.color-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--un-background-02);
+  border-radius: var(--un-radius-small);
+  font-size: var(--un-typography-caption-font-size);
+}
+
+.color-pill {
+  width: 24px;
+  height: 24px;
+  border-radius: 12px;
+  border: 1px solid var(--un-border-color-container);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--un-border-color-separator);
+}
+
+.form-actions.space-between {
+  justify-content: space-between;
+}
+
+button {
+  padding: 0.75rem 1.5rem;
+  font-family: var(--un-font-family-primary);
+  font-size: var(--un-typography-body-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  border: none;
+  border-radius: var(--un-radius-small);
+  cursor: pointer;
+  transition: background-color 0.2s;
+  background: var(--un-primary-default);
+  color: var(--un-text-inverse);
+}
+
+button:hover {
+  background: var(--un-primary-hover);
+}
+
+button:active {
+  background: var(--un-primary-pressed);
+}
+
+button:focus {
+  outline: var(--un-focus-width) solid var(--un-focus-color);
+  outline-offset: var(--un-focus-offset);
+}
+
+button.un-btn--secondary {
+  background: var(--un-background-01);
+  color: var(--un-text-default);
+  border: 1px solid var(--un-border-color-input);
+}
+
+button.un-btn--secondary:hover {
+  background: var(--un-background-02);
+}
+
+button.un-btn--danger {
+  background: var(--un-error-default);
+  color: var(--un-text-inverse);
+}
+
+button.un-btn--danger:hover {
+  background: #c82333;
+}
+
+footer {
+  background: var(--un-background-02);
+  border-top: 1px solid var(--un-border-color-separator);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  color: var(--un-text-muted);
+  font-size: var(--un-typography-caption-font-size);
+}
+
+.footer-content {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+</style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+<div class="unity-theme" data-mode="light" data-density="balanced">
+
+<header>
+  <div class="header-content">
+    <div class="header-left">
+      <div class="logo-section">
+        <div class="logo-badge">G</div>
+        <h1 class="app-title">GRC Instrument Scheduler</h1>
+      </div>
+      <nav>
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/instruments" class="active">Instruments</a></li>
+          <li><a href="#" class="disabled">Events</a></li>
+          <li><a href="/admin/locations">Admin</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="user-section">
+      <div class="user-avatar"></div>
+      <span>{{ user.full_name }}</span>
+      <span>▼</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <h2 class="page-title">Instrument Form</h2>
+    <p class="page-subtitle">Create a new instrument or update an existing instrument</p>
+  </div>
+
+  <div class="form-card">
+    <div class="utc-notice">
+      <strong>Note:</strong> All times displayed in UTC
+    </div>
+
+    {% if success_message %}
+    <div class="utc-notice">
+      <strong>Success:</strong> {{ success_message }}
+    </div>
+    {% endif %}
+
+    {% if error_message %}
+    <div class="utc-notice">
+      <strong>Error:</strong> {{ error_message }}
+    </div>
+    {% endif %}
+
+    <form method="post" action="/instruments/form">
+      <input type="hidden" name="instrument_id" value="{{ instrument.id if instrument else '' }}">
+
+      <div class="form-section">
+        <h3 class="form-section-title">Basic Information</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="nickname">Nickname <span class="required">*</span></label>
+            <input type="text" id="nickname" name="nickname" required maxlength="100" placeholder="Enter instrument nickname" value="{{ instrument.nickname if instrument else '' }}">
+            <span class="field-hint">Required, max 100 characters</span>
+            {% if field_errors.nickname %}
+            <span class="field-hint">{{ field_errors.nickname }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="asset_id">Asset ID <span class="required">*</span></label>
+            <input type="text" id="asset_id" name="asset_id" required maxlength="50" placeholder="Enter asset ID" value="{{ instrument.asset_id if instrument else '' }}">
+            <span class="field-hint">Required, unique, max 50 characters</span>
+            {% if field_errors.asset_id %}
+            <span class="field-hint">{{ field_errors.asset_id }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-row full-width">
+          <div class="form-group">
+            <label for="name">Full Name <span class="required">*</span></label>
+            <input type="text" id="name" name="name" required maxlength="200" placeholder="Enter full instrument name" value="{{ instrument.name if instrument else '' }}">
+            <span class="field-hint">Required, max 200 characters</span>
+            {% if field_errors.name %}
+            <span class="field-hint">{{ field_errors.name }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="form-section-title">Classification</h3>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="location">Location <span class="required">*</span></label>
+            <select id="location" name="location" required>
+              <option value="">- Select Location -</option>
+              {% for location in locations %}
+              <option value="{{ location.value }}" {% if instrument and instrument.location == location.value %}selected{% endif %}>{{ location.label }}</option>
+              {% endfor %}
+            </select>
+            <span class="field-hint">Required</span>
+            {% if field_errors.location %}
+            <span class="field-hint">{{ field_errors.location }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="vendor">Vendor <span class="required">*</span></label>
+            <select id="vendor" name="vendor" required>
+              <option value="">- Select Vendor -</option>
+              {% for vendor in vendors %}
+              <option value="{{ vendor.value }}" {% if instrument and instrument.vendor == vendor.value %}selected{% endif %}>{{ vendor.label }}</option>
+              {% endfor %}
+            </select>
+            <span class="field-hint">Required</span>
+            {% if field_errors.vendor %}
+            <span class="field-hint">{{ field_errors.vendor }}</span>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="type">Type <span class="required">*</span></label>
+            <select id="type" name="type" required>
+              <option value="">- Select Type -</option>
+              {% for type in types %}
+              <option value="{{ type.value }}" {% if instrument and instrument.type == type.value %}selected{% endif %}>{{ type.label }}</option>
+              {% endfor %}
+            </select>
+            <span class="field-hint">Required</span>
+            {% if field_errors.type %}
+            <span class="field-hint">{{ field_errors.type }}</span>
+            {% endif %}
+          </div>
+
+          <div class="form-group">
+            <label for="color">Color <span class="required">*</span></label>
+            <div class="color-input-group">
+              <input type="color" id="color" name="color" value="{{ instrument.color if instrument else '#0066cc' }}" required>
+              <div class="color-preview">
+                <div class="color-pill" style="background-color: {{ instrument.color if instrument else '#0066cc' }};"></div>
+                <span>{{ instrument.color_label if instrument else 'Blue' }}</span>
+              </div>
+            </div>
+            <span class="field-hint">Select color for calendar display</span>
+            {% if field_errors.color %}
+            <span class="field-hint">{{ field_errors.color }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h3 class="form-section-title">Status</h3>
+
+        <div class="form-row full-width">
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="is_active" name="is_active" {% if not instrument or instrument.is_active %}checked{% endif %}>
+              <label for="is_active">Is Active</label>
+            </div>
+            <span class="field-hint">Uncheck to soft-delete this instrument</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-actions space-between">
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit">Save Instrument</button>
+          <button type="button" class="un-btn--secondary">Cancel</button>
+        </div>
+        <button type="button" class="un-btn--danger">Delete Instrument</button>
+      </div>
+    </form>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-content">
+    <p>Copyright &copy; 2026 AbbVie Inc.</p>
+  </div>
+</footer>
+
+</div>
+</body>
+</html>
