@@ -1,0 +1,519 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Reservation Purpose Administration — GRC Instrument Scheduler</title>
+<style>
+:root {
+  --un-background-01: #ffffff;
+  --un-background-02: #f8f9fa;
+  --un-background-inverse: #071D49;
+  --un-text-default: #071D49;
+  --un-text-muted: #6c757d;
+  --un-text-inverse: #ffffff;
+  --un-primary-default: #0d6efd;
+  --un-primary-hover: #0b5ed7;
+  --un-primary-pressed: #0a58ca;
+  --un-brand-500: #0d6efd;
+  --un-brand-700: #071D49;
+  --un-error-default: #dc3545;
+  --un-success-default: #28a745;
+  --un-warning-default: #ffc107;
+  --un-info-default: #17a2b8;
+  --un-border-color-container: #dee2e6;
+  --un-border-color-input: #ced4da;
+  --un-border-color-separator: #e9ecef;
+  --un-focus-color: #0d6efd;
+  --un-focus-width: 3px;
+  --un-focus-offset: 2px;
+  --un-font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --un-font-family-mono: "Courier New", Courier, monospace;
+  --un-font-weight-primary-regular: 400;
+  --un-font-weight-primary-bold: 600;
+  --un-font-weight-primary-light: 300;
+  --un-typography-title-h1-font-size: 2rem;
+  --un-typography-title-h2-font-size: 1.5rem;
+  --un-typography-title-h3-font-size: 1.25rem;
+  --un-typography-body-font-size: 0.95rem;
+  --un-typography-caption-font-size: 0.875rem;
+  --un-radius-small: 4px;
+  --un-radius-medium: 6px;
+  --un-radius-large: 8px;
+  --un-radius-full: 9999px;
+  --un-space-card-body-horizontal: 1rem;
+  --un-grid-space-gutter-default: 1rem;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--un-font-family-primary);
+  font-size: var(--un-typography-body-font-size);
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+  line-height: 1.5;
+}
+
+.unity-theme {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: var(--un-background-01);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--un-radius-full);
+  background: var(--un-brand-700);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--un-text-inverse);
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 1.25rem;
+}
+
+.app-title {
+  font-size: 1.1rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-brand-700);
+}
+
+nav {
+  display: flex;
+  gap: 2rem;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--un-text-default);
+  font-weight: var(--un-font-weight-primary-regular);
+  padding-bottom: 0.25rem;
+  border-bottom: 3px solid transparent;
+  transition: all 0.2s;
+}
+
+nav a:hover:not(.disabled) {
+  color: var(--un-primary-default);
+}
+
+nav a.active {
+  color: var(--un-primary-default);
+  border-bottom-color: var(--un-primary-default);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+nav a.disabled {
+  color: var(--un-text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--un-text-muted);
+  pointer-events: none;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--un-radius-full);
+  background: var(--un-border-color-container);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-muted);
+}
+
+main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+h1 {
+  font-size: var(--un-typography-title-h1-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-brand-700);
+}
+
+.form-section {
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-medium);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-section h2 {
+  font-size: var(--un-typography-title-h3-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  margin-bottom: 1rem;
+  color: var(--un-brand-700);
+}
+
+.form-row {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  flex: 1;
+}
+
+label {
+  font-size: var(--un-typography-caption-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+input[type="text"],
+input[type="hidden"] {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+  font-size: var(--un-typography-body-font-size);
+  font-family: var(--un-font-family-primary);
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+  transition: border-color 0.2s;
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--un-focus-color);
+  box-shadow: 0 0 0 var(--un-focus-width) rgba(13, 110, 253, 0.25);
+}
+
+input[type="text"].error {
+  border-color: var(--un-error-default);
+}
+
+.error-message {
+  color: var(--un-error-default);
+  font-size: var(--un-typography-caption-font-size);
+  margin-top: 0.25rem;
+}
+
+.warning-message {
+  color: var(--un-warning-default);
+  font-size: var(--un-typography-caption-font-size);
+  margin-top: 0.25rem;
+  padding: 0.5rem;
+  background: rgba(255, 193, 7, 0.1);
+  border-radius: var(--un-radius-small);
+  border-left: 3px solid var(--un-warning-default);
+}
+
+.success-message {
+  color: var(--un-success-default);
+  font-size: var(--un-typography-body-font-size);
+  padding: 0.75rem;
+  background: rgba(40, 167, 69, 0.1);
+  border-radius: var(--un-radius-small);
+  border-left: 3px solid var(--un-success-default);
+  margin-bottom: 1rem;
+}
+
+button {
+  padding: 0.5rem 1.5rem;
+  border: none;
+  border-radius: var(--un-radius-full);
+  font-size: var(--un-typography-body-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  font-family: var(--un-font-family-primary);
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--un-primary-default);
+  color: var(--un-text-inverse);
+}
+
+button:hover {
+  background: var(--un-primary-hover);
+}
+
+button:active {
+  background: var(--un-primary-pressed);
+}
+
+button:focus {
+  outline: none;
+  box-shadow: 0 0 0 var(--un-focus-width) rgba(13, 110, 253, 0.25);
+}
+
+button.un-btn--secondary {
+  background: transparent;
+  color: var(--un-primary-default);
+  border: 1px solid var(--un-primary-default);
+}
+
+button.un-btn--secondary:hover {
+  background: var(--un-background-02);
+}
+
+.table-wrapper {
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-medium);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--un-background-01);
+}
+
+thead {
+  background: var(--un-background-02);
+}
+
+thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: var(--un-typography-caption-font-size);
+  color: var(--un-text-default);
+  border-bottom: 1px solid var(--un-border-color-container);
+  cursor: pointer;
+  user-select: none;
+  white-space: nowrap;
+}
+
+thead th:hover {
+  background: #e9ecef;
+}
+
+.sort-icon {
+  display: inline-block;
+  margin-left: 0.5rem;
+  opacity: 0.5;
+  font-size: 0.75rem;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--un-border-color-separator);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--un-background-02);
+}
+
+tbody tr:hover {
+  background: rgba(13, 110, 253, 0.05);
+}
+
+tbody td {
+  padding: 0.75rem 1rem;
+  font-size: var(--un-typography-body-font-size);
+  color: var(--un-text-default);
+}
+
+tbody td a {
+  color: var(--un-primary-default);
+  text-decoration: none;
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+tbody td a:hover {
+  text-decoration: underline;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  color: var(--un-primary-default);
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon-btn:hover {
+  color: var(--un-primary-hover);
+  background: none;
+}
+
+.checkmark {
+  color: var(--un-success-default);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--un-text-muted);
+}
+
+footer {
+  background: var(--un-background-02);
+  border-top: 1px solid var(--un-border-color-separator);
+  padding: 1rem 2rem;
+  text-align: center;
+  font-size: var(--un-typography-caption-font-size);
+  color: var(--un-text-muted);
+  margin-top: auto;
+}
+
+.utc-notice {
+  font-size: var(--un-typography-caption-font-size);
+  color: var(--un-text-muted);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+</style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+<div class="unity-theme" data-mode="light" data-density="balanced">
+
+<header>
+  <div class="header-left">
+    <div class="logo-section">
+      <div class="logo-badge">GRC</div>
+      <span class="app-title">GRC Instrument Scheduler</span>
+    </div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/instruments">Instruments</a>
+      <a href="/admin/locations" class="active">Admin</a>
+      <a href="#" class="disabled">Events</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="user-avatar">AH</div>
+    <span>Hamelin, Alex</span>
+    <span>↓</span>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <h1>Reservation Purpose Administration</h1>
+  </div>
+
+  <p class="utc-notice">All times displayed in UTC</p>
+
+  {% if success_message %}
+  <div class="success-message">{{ success_message }}</div>
+  {% endif %}
+
+  <div class="form-section">
+    <h2>Create / Update Reservation Purpose</h2>
+    <form method="post" action="/admin/purposes">
+      <input type="hidden" name="purpose_id" value="{{ purpose.id if purpose else '' }}">
+      <div class="form-row">
+        <div class="form-group" style="flex: 2;">
+          <label for="purpose_name">Name <span style="color: var(--un-error-default);">*</span></label>
+          <input type="text" id="purpose_name" name="name" required value="{{ purpose.name if purpose else '' }}">
+          {% if field_errors.name %}
+          <div class="error-message">{{ field_errors.name }}</div>
+          {% endif %}
+        </div>
+        <div class="form-group" style="flex: 0 0 auto;">
+          <button type="submit"><span class="sr-only">Create Purpose</span>Save</button>
+        </div>
+        <div class="form-group" style="flex: 0 0 auto;">
+          <button type="reset" class="un-btn--secondary">Clear</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div class="table-wrapper">
+    <table>
+      <thead>
+        <tr>
+          <th>Name <span class="sort-icon">⇅</span></th>
+          <th>Is Active <span class="sort-icon">⇅</span></th>
+          <th>Actions <span class="sort-icon">⇅</span></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for item in purposes %}
+        <tr>
+          {% if item.is_active %}
+          <td><a href="/admin/purposes?edit={{ item.id }}">{{ item.name }}</a></td>
+          <td><span class="checkmark">✓</span></td>
+          <td>
+            <form method="post" action="/admin/purposes/edit" style="display: inline;">
+              <input type="hidden" name="purpose_id" value="{{ item.id }}">
+              <button type="submit" class="icon-btn" title="Edit"><span class="sr-only">Edit Purpose</span>🔧</button>
+            </form>
+            <form method="post" action="/admin/purposes/delete" style="display: inline;">
+              <input type="hidden" name="purpose_id" value="{{ item.id }}">
+              <button type="submit" class="icon-btn" title="Deactivate" style="color: var(--un-error-default);"><span class="sr-only">Deactivate Purpose</span>🗑</button>
+            </form>
+          </td>
+          {% else %}
+          <td style="color: var(--un-text-muted);">{{ item.name }}</td>
+          <td></td>
+          <td>
+            <form method="post" action="/admin/purposes/restore" style="display: inline;">
+              <input type="hidden" name="purpose_id" value="{{ item.id }}">
+              <button type="submit" class="icon-btn" title="Restore" style="color: var(--un-success-default);"><span class="sr-only">Reactivate Purpose</span>↻</button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  <p>Copyright © 2026 AbbVie Inc.</p>
+</footer>
+
+</div>
+</body>
+</html>

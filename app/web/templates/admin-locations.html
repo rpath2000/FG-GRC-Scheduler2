@@ -1,0 +1,525 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Location Administration - GRC Instrument Scheduler</title>
+<style>
+:root {
+  --un-background-01: #ffffff;
+  --un-background-02: #f5f5f5;
+  --un-text-default: #071D49;
+  --un-text-muted: #6b7280;
+  --un-primary-default: #1d4ed8;
+  --un-primary-hover: #1e40af;
+  --un-brand-500: #3b82f6;
+  --un-error-default: #dc2626;
+  --un-success-default: #16a34a;
+  --un-warning-default: #f59e0b;
+  --un-border-color-container: #d1d5db;
+  --un-border-color-separator: #e5e7eb;
+  --un-focus-color: #3b82f6;
+  --un-focus-width: 3px;
+  --un-font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --un-font-weight-primary-regular: 400;
+  --un-font-weight-primary-bold: 600;
+  --un-radius-small: 4px;
+  --un-radius-medium: 6px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--un-font-family-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+}
+
+.unity-theme {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: var(--un-background-01);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-badge {
+  width: 40px;
+  height: 40px;
+  background: var(--un-text-default);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 18px;
+}
+
+.app-title {
+  font-size: 18px;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+nav {
+  display: flex;
+  gap: 24px;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--un-text-default);
+  font-weight: var(--un-font-weight-primary-regular);
+  padding-bottom: 20px;
+  border-bottom: 3px solid transparent;
+  transition: border-color 0.2s;
+}
+
+nav a:hover {
+  color: var(--un-primary-default);
+}
+
+nav a.active {
+  color: var(--un-brand-500);
+  border-bottom-color: var(--un-brand-500);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+nav a.disabled {
+  color: var(--un-text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--un-text-muted);
+  pointer-events: none;
+  opacity: 0.7;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--un-background-02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+main {
+  flex: 1;
+  padding: 32px 24px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+h1 {
+  font-size: 28px;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+.btn-primary {
+  background: var(--un-primary-default);
+  color: white;
+  border: none;
+  border-radius: var(--un-radius-small);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: var(--un-font-weight-primary-bold);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--un-primary-hover);
+}
+
+.btn-primary:focus {
+  outline: var(--un-focus-width) solid var(--un-focus-color);
+  outline-offset: 2px;
+}
+
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  margin-bottom: 32px;
+}
+
+.card {
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-medium);
+  padding: 24px;
+}
+
+.card h2 {
+  font-size: 18px;
+  font-weight: var(--un-font-weight-primary-bold);
+  margin-bottom: 16px;
+  color: var(--un-text-default);
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  font-weight: var(--un-font-weight-primary-bold);
+  margin-bottom: 6px;
+  color: var(--un-text-default);
+}
+
+input[type="text"] {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-small);
+  font-size: 14px;
+  font-family: var(--un-font-family-primary);
+  color: var(--un-text-default);
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--un-focus-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+button[type="submit"] {
+  background: var(--un-primary-default);
+  color: white;
+  border: none;
+  border-radius: var(--un-radius-small);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: var(--un-font-weight-primary-bold);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[type="submit"]:hover {
+  background: var(--un-primary-hover);
+}
+
+button[type="submit"]:focus {
+  outline: var(--un-focus-width) solid var(--un-focus-color);
+  outline-offset: 2px;
+}
+
+button[type="button"] {
+  background: var(--un-background-02);
+  color: var(--un-text-default);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-small);
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: var(--un-font-weight-primary-bold);
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+button[type="button"]:hover {
+  background: #e5e7eb;
+}
+
+.error-message {
+  color: var(--un-error-default);
+  font-size: 13px;
+  margin-top: 4px;
+  display: block;
+}
+
+.warning-message {
+  background: #fef3c7;
+  border: 1px solid #fcd34d;
+  border-radius: var(--un-radius-small);
+  padding: 12px 16px;
+  color: #92400e;
+  font-size: 13px;
+  margin-top: 12px;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.success-message {
+  background: #d1fae5;
+  border: 1px solid #6ee7b7;
+  border-radius: var(--un-radius-small);
+  padding: 12px 16px;
+  color: #065f46;
+  font-size: 13px;
+  margin-top: 12px;
+  display: block;
+}
+
+.table-container {
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-medium);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: var(--un-background-02);
+}
+
+thead th {
+  text-align: left;
+  padding: 12px 16px;
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 13px;
+  color: var(--un-text-default);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  position: relative;
+}
+
+thead th::after {
+  content: "⇅";
+  position: absolute;
+  right: 8px;
+  color: var(--un-text-muted);
+  font-size: 12px;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--un-border-color-separator);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--un-background-02);
+}
+
+tbody td {
+  padding: 12px 16px;
+  font-size: 14px;
+  color: var(--un-text-default);
+}
+
+.action-link {
+  color: var(--un-primary-default);
+  text-decoration: none;
+  font-weight: var(--un-font-weight-primary-bold);
+  cursor: pointer;
+}
+
+.action-link:hover {
+  text-decoration: underline;
+}
+
+.status-active {
+  color: var(--un-success-default);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+.status-inactive {
+  color: var(--un-text-muted);
+}
+
+.usage-count {
+  color: var(--un-text-muted);
+  font-size: 13px;
+}
+
+footer {
+  background: var(--un-background-01);
+  border-top: 1px solid var(--un-border-color-separator);
+  padding: 16px 24px;
+  text-align: center;
+  color: var(--un-text-muted);
+  font-size: 13px;
+}
+
+.utc-notice {
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: var(--un-radius-small);
+  padding: 12px 16px;
+  color: #1e40af;
+  font-size: 13px;
+  margin-bottom: 24px;
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+</style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+<div class="unity-theme" data-mode="light" data-density="balanced">
+
+<header>
+  <div class="header-left">
+    <div class="logo-section">
+      <div class="logo-badge">GRC</div>
+      <span class="app-title">GRC Instrument Scheduler</span>
+    </div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/instruments">Instruments</a>
+      <a href="/admin/locations" class="active">Admin</a>
+      <a href="#" class="disabled">Events</a>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="user-avatar">AH</div>
+    <span>Hamelin, Alex</span>
+    <span>⎋</span>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <h1>Location Administration</h1>
+  </div>
+
+  <div class="utc-notice">
+    ℹ️ All times displayed in UTC
+  </div>
+
+  {% if success_message %}
+  <div class="success-message">{{ success_message }}</div>
+  {% endif %}
+  {% if error_message %}
+  <div class="error-message">{{ error_message }}</div>
+  {% endif %}
+  {% if warning_message %}
+  <div class="warning-message">⚠️ {{ warning_message }}</div>
+  {% endif %}
+
+  <div class="content-grid">
+    <div class="card">
+      <h2>Add New Location</h2>
+      <form method="post" action="/admin/locations/create">
+        <div class="form-group">
+          <label for="location-name">Location Name <span style="color: var(--un-error-default);">*</span></label>
+          <input type="text" id="location-name" name="name" required maxlength="100" aria-describedby="name-error">
+          {% if field_errors['name'] %}<div id="name-error" class="error-message">{{ field_errors['name'] }}</div>{% endif %}
+        </div>
+        <div class="form-actions">
+          <button type="submit">Create Location</button>
+          <button type="button">Clear</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="card">
+      <h2>Edit Location</h2>
+      <form method="post" action="/admin/locations/update">
+        <input type="hidden" name="id" value="">
+        <div class="form-group">
+          <label for="edit-location-name">Location Name <span style="color: var(--un-error-default);">*</span></label>
+          <input type="text" id="edit-location-name" name="name" required maxlength="100" aria-describedby="edit-name-error" placeholder="Select a location from the table below to edit">
+        </div>
+        <div class="form-actions">
+          <button type="submit">Update Location</button>
+          <button type="button">Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Location Name</th>
+          <th>Status</th>
+          <th>Usage Count</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for location in locations %}
+        <tr>
+          <td>{{ location.name }}</td>
+          <td>
+            {% if location.is_active %}
+            <span class="status-active">Active ✓</span>
+            {% else %}
+            <span class="status-inactive">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="usage-count">{{ location.usage_count if location.usage_count is defined else '' }}</td>
+          <td>
+            <div class="action-icons">
+              <a href="/admin/locations?edit={{ location.location_id }}" class="action-link" title="Edit location">Edit</a>
+              {% if location.is_active %}
+              <form method="post" action="/admin/locations/{{ location.location_id }}/delete" style="display:inline;"><input type="hidden" name="id" value="{{ location.location_id }}">
+              <button type="submit" class="action-link" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;padding:0;" title="Deactivate location">Deactivate</button>
+              </form>
+              {% else %}
+              <form method="post" action="/admin/locations/{{ location.location_id }}/reactivate" style="display:inline;"><input type="hidden" name="id" value="{{ location.location_id }}">
+              <button type="submit" class="action-link" style="background:none;border:none;color:var(--un-success-default);cursor:pointer;padding:0;" title="Reactivate location">Reactivate</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  <p>Copyright © 2026 AbbVie Inc.</p>
+</footer>
+
+</div>
+</body>
+</html>

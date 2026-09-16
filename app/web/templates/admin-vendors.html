@@ -1,0 +1,569 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vendor Administration - GRC Instrument Scheduler</title>
+<style>
+:root {
+  --un-background-01: #ffffff;
+  --un-background-02: #f8f9fa;
+  --un-background-inverse: #071D49;
+  --un-text-default: #071D49;
+  --un-text-muted: #6c757d;
+  --un-text-inverse: #ffffff;
+  --un-primary-default: #0066CC;
+  --un-primary-hover: #0052A3;
+  --un-primary-pressed: #003D7A;
+  --un-brand-500: #0066CC;
+  --un-error-default: #d32f2f;
+  --un-success-default: #2e7d32;
+  --un-warning-default: #f57c00;
+  --un-info-default: #0288d1;
+  --un-border-color-container: #dee2e6;
+  --un-border-color-input: #ced4da;
+  --un-border-color-separator: #e9ecef;
+  --un-focus-color: #0066CC;
+  --un-focus-width: 3px;
+  --un-focus-offset: 2px;
+  --un-font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --un-font-family-mono: "Courier New", monospace;
+  --un-font-weight-primary-regular: 400;
+  --un-font-weight-primary-bold: 600;
+  --un-font-weight-primary-light: 300;
+  --un-radius-small: 4px;
+  --un-radius-medium: 6px;
+  --un-radius-large: 8px;
+  --un-radius-full: 9999px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--un-font-family-primary);
+  font-weight: var(--un-font-weight-primary-regular);
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+  line-height: 1.5;
+}
+
+.unity-theme {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background: var(--un-background-01);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  padding: 1rem 2rem;
+}
+
+.header-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-badge {
+  width: 40px;
+  height: 40px;
+  background: var(--un-background-inverse);
+  border-radius: var(--un-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--un-text-inverse);
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 1.125rem;
+}
+
+.logo-text {
+  font-size: 1.125rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+nav {
+  display: flex;
+  gap: 2rem;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--un-text-default);
+  font-weight: var(--un-font-weight-primary-regular);
+  padding-bottom: 0.25rem;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+nav a:hover {
+  color: var(--un-primary-hover);
+}
+
+nav a.active {
+  color: var(--un-primary-default);
+  border-bottom-color: var(--un-primary-default);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+nav a.disabled {
+  color: var(--un-text-muted);
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: var(--un-text-muted);
+  font-size: 0.875rem;
+  pointer-events: none;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--un-radius-full);
+  background: var(--un-background-02);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  font-size: 1.75rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+button {
+  font-family: var(--un-font-family-primary);
+  font-weight: var(--un-font-weight-primary-bold);
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--un-radius-medium);
+  border: none;
+  background: var(--un-primary-default);
+  color: var(--un-text-inverse);
+  cursor: pointer;
+  font-size: 0.9375rem;
+  transition: background 0.2s;
+}
+
+button:hover {
+  background: var(--un-primary-hover);
+}
+
+button:active {
+  background: var(--un-primary-pressed);
+}
+
+button:focus {
+  outline: var(--un-focus-width) solid var(--un-focus-color);
+  outline-offset: var(--un-focus-offset);
+}
+
+.un-card {
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-medium);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.un-card h3 {
+  font-size: 1.125rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  margin-bottom: 1rem;
+  color: var(--un-text-default);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-size: 0.875rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  margin-bottom: 0.375rem;
+  color: var(--un-text-default);
+}
+
+input[type="text"],
+input[type="email"],
+select,
+textarea {
+  font-family: var(--un-font-family-primary);
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+  font-size: 0.9375rem;
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+  outline: var(--un-focus-width) solid var(--un-focus-color);
+  outline-offset: 0;
+  border-color: var(--un-primary-default);
+}
+
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+  width: 1.125rem;
+  height: 1.125rem;
+  cursor: pointer;
+}
+
+.checkbox-group label {
+  margin-bottom: 0;
+  cursor: pointer;
+  font-weight: var(--un-font-weight-primary-regular);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--un-border-color-separator);
+}
+
+.un-btn--secondary {
+  background: var(--un-background-01);
+  color: var(--un-text-default);
+  border: 1px solid var(--un-border-color-input);
+}
+
+.un-btn--secondary:hover {
+  background: var(--un-background-02);
+}
+
+.alert {
+  padding: 0.75rem 1rem;
+  border-radius: var(--un-radius-small);
+  margin-bottom: 1rem;
+  font-size: 0.9375rem;
+}
+
+.alert-error {
+  background: #fdecea;
+  border: 1px solid var(--un-error-default);
+  color: var(--un-error-default);
+}
+
+.alert-warning {
+  background: #fff8e1;
+  border: 1px solid var(--un-warning-default);
+  color: #e65100;
+}
+
+.alert-success {
+  background: #e8f5e9;
+  border: 1px solid var(--un-success-default);
+  color: var(--un-success-default);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-medium);
+  overflow: hidden;
+}
+
+thead {
+  background: var(--un-background-02);
+}
+
+thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 0.875rem;
+  color: var(--un-text-default);
+  border-bottom: 2px solid var(--un-border-color-container);
+  position: relative;
+}
+
+thead th::after {
+  content: '⇅';
+  position: absolute;
+  right: 0.5rem;
+  opacity: 0.4;
+  font-size: 0.75rem;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--un-border-color-separator);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--un-background-02);
+}
+
+tbody tr:hover {
+  background: #f0f7ff;
+}
+
+tbody td {
+  padding: 0.75rem 1rem;
+  font-size: 0.9375rem;
+  color: var(--un-text-default);
+}
+
+.action-icons {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.action-icons a {
+  color: var(--un-primary-default);
+  text-decoration: none;
+  font-size: 1.125rem;
+  transition: color 0.2s;
+}
+
+.action-icons a:hover {
+  color: var(--un-primary-hover);
+}
+
+.action-icons a:focus {
+  outline: var(--un-focus-width) solid var(--un-focus-color);
+  outline-offset: var(--un-focus-offset);
+  border-radius: var(--un-radius-small);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: var(--un-radius-full);
+  font-size: 0.8125rem;
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+.status-active {
+  background: #e8f5e9;
+  color: var(--un-success-default);
+}
+
+.status-inactive {
+  background: var(--un-background-02);
+  color: var(--un-text-muted);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--un-text-muted);
+}
+
+footer {
+  background: var(--un-background-02);
+  border-top: 1px solid var(--un-border-color-separator);
+  padding: 1.5rem 2rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--un-text-muted);
+}
+
+.utc-notice {
+  font-size: 0.8125rem;
+  color: var(--un-text-muted);
+  font-style: italic;
+  margin-bottom: 1rem;
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+</style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+<div class="unity-theme" data-mode="light" data-density="balanced">
+
+<header>
+  <div class="header-content">
+    <div class="header-left">
+      <div class="logo-section">
+        <div class="logo-badge">GRC</div>
+        <span class="logo-text">GRC Instrument Scheduler</span>
+      </div>
+      <nav>
+        <a href="/">Home</a>
+        <a href="/instruments">Instruments</a>
+        <a href="/admin/locations" class="active">Admin</a>
+        <a href="#" class="disabled">Events</a>
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="user-avatar">AH</div>
+      <span>Hamelin, Alex</span>
+      <span>▼</span>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <h1>Vendor Administration</h1>
+    <button type="button">Create a new Vendor</button>
+  </div>
+
+  <div class="utc-notice">All times displayed in UTC</div>
+
+  <!-- Create/Edit Form (initially hidden) -->
+  <div id="createForm" style="display:none;">
+    <div class="un-card">
+      <h3>Create Vendor</h3>
+
+      {% if error_message %}
+      <div class="alert alert-error" role="alert">
+        {{ error_message }}
+      </div>
+      {% endif %}
+
+      <form method="post" action="/admin/vendors">
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="vendorName">Vendor Name <span style="color: var(--un-error-default);">*</span></label>
+            <input type="text" id="vendorName" name="name" required maxlength="200" value="{{ vendor.name if vendor else '' }}" />
+          </div>
+          <div class="form-group">
+            <div class="checkbox-group">
+              <input type="checkbox" id="isActive" name="isActive" {% if not vendor or vendor.isActive %}checked{% endif %} />
+              <label for="isActive">Is Active</label>
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-actions">
+          <button type="button" class="un-btn--secondary">Cancel</button>
+          <button type="submit">Save Vendor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Vendor List -->
+  <div id="vendorList">
+    {% if warning_message %}
+    <div class="alert alert-warning" role="alert">
+      {{ warning_message }}
+    </div>
+    {% endif %}
+
+    {% if success_message %}
+    <div class="alert alert-success" role="alert">
+      {{ success_message }}
+    </div>
+    {% endif %}
+
+    {% if vendors %}
+    <table>
+      <thead>
+        <tr>
+          <th style="width: 80px;">Actions</th>
+          <th>Vendor Name</th>
+          <th style="width: 120px;">Status</th>
+          <th style="width: 180px;">Created (UTC)</th>
+          <th style="width: 180px;">Modified (UTC)</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for vendor in vendors %}
+        <tr>
+          <td>
+            <div class="action-icons">
+              <a href="/admin/vendors?edit={{ vendor.id }}" title="Edit vendor" aria-label="Edit {{ vendor.name }}">🔧</a>
+              {% if vendor.isActive %}
+              <form method="post" action="/admin/vendors/{{ vendor.id }}/delete" style="display:inline;">
+                <button type="submit" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;font-size:1.125rem;padding:0;" title="Deactivate vendor" aria-label="Deactivate {{ vendor.name }}"><span class="sr-only">Deactivate Vendor</span>🗑</button>
+              </form>
+              {% else %}
+              <form method="post" action="/admin/vendors/{{ vendor.id }}/restore" style="display:inline;">
+                <button type="submit" style="background:none;border:none;color:var(--un-success-default);cursor:pointer;font-size:1.125rem;padding:0;" title="Reactivate vendor" aria-label="Reactivate {{ vendor.name }}"><span class="sr-only">Reactivate Vendor</span>↻</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
+          <td>{{ vendor.name }}</td>
+          <td>
+            {% if vendor.isActive %}
+            <span class="status-badge status-active">Active</span>
+            {% else %}
+            <span class="status-badge status-inactive">Inactive</span>
+            {% endif %}
+          </td>
+          <td>{{ vendor.createdAt }}</td>
+          <td>{{ vendor.modifiedAt }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+    {% else %}
+    <div class="empty-state">No vendors found.</div>
+    {% endif %}
+  </div>
+</main>
+
+<footer>
+  <p>Copyright © 2026 AbbVie Inc.</p>
+</footer>
+
+</div>
+</body>
+</html>
