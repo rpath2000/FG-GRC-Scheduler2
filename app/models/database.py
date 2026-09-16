@@ -38,5 +38,16 @@ def get_db() -> Generator[Session, None, None]:
     db = SessionLocal()
     try:
         yield db
+        # COMMIT on a clean return, roll back on any exception. The services deliberately only
+        # `flush()` -- 23 flushes and not one commit -- leaving durability to the caller, and no
+        # caller ever did: the web handlers never commit either. So every write in the deployed app
+        # was discarded when the session closed. `POST /instruments/form` answered 200 and rendered
+        # "Instrument created successfully." with ZERO rows written, and the audit log stayed empty
+        # for the same reason. A success message over a rolled-back transaction is worse than an
+        # error, because nothing downstream can tell it happened.
+        db.commit()
+    except Exception:
+        db.rollback()
+        raise
     finally:
         db.close()

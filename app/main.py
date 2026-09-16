@@ -71,6 +71,35 @@ def _wire() -> None:
 
 
 _wire()
+
+
+@app.on_event("startup")
+def _seed_master_data_on_startup() -> None:
+    """Load the specified master data once the app is up.
+
+    `seed_master_data` is idempotent (each table is seeded only from a zero-row state) and was
+    generated with no caller, so it never ran: the deployed app's Location/Vendor/Type/Purpose tables
+    were EMPTY. Every dropdown on the instrument and reservation forms was blank, and saving an
+    instrument answered HTTP 500 with a ForeignKeyViolation -- `location_id=1 is not present in table
+    "locations"` -- because there was no row 1 to point at. The release's functional check found it as
+    `form_server_error`; nothing static could, because the code is correct and only the data was absent.
+
+    Failure here must not stop the app: a seeding problem is a data problem, and /health answering the
+    truth is more useful than a container that will not start.
+    """
+    try:
+        module = importlib.import_module("app.models.seed")
+    except Exception as exc:
+        log.warning("seed module not importable: %s", exc)
+        return
+    seeder = getattr(module, "seed_master_data", None)
+    if seeder is None:
+        return
+    try:
+        seeder()
+        log.info("master data seeded")
+    except Exception as exc:
+        log.warning("master-data seeding failed: %s", exc)
 if _FAILED and not os.environ.get("SHIFT_ALLOW_PARTIAL_SEAMS"):
     # Refuse to serve a fraction of the app. A container that exits is caught in seconds
     # and its reason is right here; a container that starts half-built looks healthy.

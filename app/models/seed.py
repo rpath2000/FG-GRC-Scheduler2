@@ -1,6 +1,11 @@
 """
 Idempotent seed script for master data.
 
+The values are the ones the requirements specify (decisions note section 9), not examples.
+The generated defaults were invented -- "Main Lab", "Acme Instruments", "Multimeter" -- so every
+dropdown on the reservation and instrument forms offered data the business had never heard of, and
+the four master-data admin pages listed it back as though it were real.
+
 Populates Location, Vendor, InstrumentType, and ReservationPurpose with a
 baseline set of active rows if (and only if) each table is currently empty.
 Running this script multiple times must never create duplicate rows.
@@ -12,10 +17,24 @@ from sqlalchemy.orm import Session
 from app.models.database import SessionLocal
 from app.models.models import InstrumentType, Location, ReservationPurpose, Vendor
 
-DEFAULT_LOCATIONS = ["Main Lab", "Calibration Room", "Field Storage"]
-DEFAULT_VENDORS = ["Acme Instruments", "Precision Corp", "Metrology Labs"]
-DEFAULT_TYPES = ["Multimeter", "Oscilloscope", "Caliper"]
-DEFAULT_PURPOSES = ["Calibration", "Training", "Production Use"]
+DEFAULT_LOCATIONS = ["Lab 224", "Lab 226", "Lab L128A", "Lab L128B"]
+DEFAULT_VENDORS = [
+    "Beckman Coulter",
+    "Covaris",
+    "Eppendorf",
+    "AutoGen",
+    "Promega",
+    "Illumina",
+    "QIAGEN",
+]
+DEFAULT_TYPES = ["Liquid Handler", "Sonicator", "Extraction", "Sequencer"]
+DEFAULT_PURPOSES = [
+    "Method development",
+    "Sample analysis",
+    "Maintenance",
+    "Validation",
+    "Training",
+]
 
 
 def _seed_table(db: Session, model, names: list[str]) -> None:
