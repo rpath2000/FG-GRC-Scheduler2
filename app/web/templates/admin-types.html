@@ -428,6 +428,18 @@ footer {
     All times displayed in UTC
   </div>
 
+  {% if success_message %}
+  <div class="success-message">{{ success_message }}</div>
+  {% endif %}
+
+  {% if error_message %}
+  <div class="error-message">{{ error_message }}</div>
+  {% endif %}
+
+  {% if warning_message %}
+  <div class="warning-message">{{ warning_message }}</div>
+  {% endif %}
+
   <section class="form-section">
     <h2>Add New Type</h2>
     <form method="post" action="/admin/types/create">

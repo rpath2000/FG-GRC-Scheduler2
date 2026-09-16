@@ -234,6 +234,11 @@
             color: #4caf50;
             font-size: 18px;
         }
+        .actor-note {
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 16px;
+        }
     </style>
   {% include "_shared_styles.html" %}
 </head>
@@ -267,6 +272,9 @@
         {% endif %}
         {% if error_message %}
         <div class="error-message">{{ error_message }}</div>
+        {% endif %}
+        {% if vendor %}
+        <p class="actor-note">{{ vendor }}</p>
         {% endif %}
 
         <div class="filters">
