@@ -444,7 +444,7 @@ footer {
       <div class="form-grid">
         <div class="form-field">
           <label for="type-name">Type Name *</label>
-          <input type="text" id="type-name" name="name" required maxlength="100" value="{{ name }}" />
+          <input type="text" id="type-name" name="name" required maxlength="100" />
         </div>
       </div>
       <div class="form-actions">
@@ -461,7 +461,7 @@ footer {
       <div class="form-grid">
         <div class="form-field">
           <label for="edit-name">Type Name *</label>
-          <input type="text" id="edit-name" name="name" required maxlength="100" value="{{ name }}" />
+          <input type="text" id="edit-name" name="name" required maxlength="100" />
         </div>
       </div>
       <div class="form-actions">
@@ -484,7 +484,7 @@ footer {
       <tbody>
         {% for item in types %}
         <tr>
-          <td><a href="/admin/types?edit={{ item.id }}">{{ item.name }}</a></td>
+          <td><a href="/admin/types?edit={{ item.type_id }}">{{ item.name }}</a></td>
           <td>
             {% if item.is_active %}
             <span class="status-active">Active</span>
@@ -495,7 +495,7 @@ footer {
           <td>
             <div class="action-icons">
               <form method="post" action="/admin/types/edit" style="display: inline;">
-                <input type="hidden" name="id" value="{{ item.id }}" />
+                <input type="hidden" name="id" value="{{ item.type_id }}" />
                 <button type="submit" class="icon-button" title="Edit" aria-label="Edit {{ item.name }}"><span class="sr-only">Edit Type</span>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
@@ -504,7 +504,7 @@ footer {
               </form>
               {% if item.is_active %}
               <form method="post" action="/admin/types/delete" style="display: inline;">
-                <input type="hidden" name="id" value="{{ item.id }}" />
+                <input type="hidden" name="id" value="{{ item.type_id }}" />
                 <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate {{ item.name }}"><span class="sr-only">Deactivate Type</span>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>

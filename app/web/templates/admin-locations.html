@@ -446,7 +446,7 @@ footer {
       <form method="post" action="/admin/locations/create">
         <div class="form-group">
           <label for="location-name">Location Name <span style="color: var(--un-error-default);">*</span></label>
-          <input type="text" id="location-name" name="name" required maxlength="100" aria-describedby="name-error" value="{{ name }}">
+          <input type="text" id="location-name" name="name" required maxlength="100" aria-describedby="name-error">
           {% if field_errors['name'] %}<div id="name-error" class="error-message">{{ field_errors['name'] }}</div>{% endif %}
         </div>
         <div class="form-actions">
@@ -462,7 +462,7 @@ footer {
         <input type="hidden" name="id" value="">
         <div class="form-group">
           <label for="edit-location-name">Location Name <span style="color: var(--un-error-default);">*</span></label>
-          <input type="text" id="edit-location-name" name="name" required maxlength="100" aria-describedby="edit-name-error" placeholder="Select a location from the table below to edit" value="{{ name }}">
+          <input type="text" id="edit-location-name" name="name" required maxlength="100" aria-describedby="edit-name-error" placeholder="Select a location from the table below to edit">
         </div>
         <div class="form-actions">
           <button type="submit">Update Location</button>
@@ -496,13 +496,13 @@ footer {
           <td class="usage-count">{{ location.usage_count if location.usage_count is defined else '' }}</td>
           <td>
             <div class="action-icons">
-              <a href="/admin/locations?edit={{ location.id }}" class="action-link" title="Edit location">Edit</a>
+              <a href="/admin/locations?edit={{ location.location_id }}" class="action-link" title="Edit location">Edit</a>
               {% if location.is_active %}
-              <form method="post" action="/admin/locations/{{ location.id }}/delete" style="display:inline;"><input type="hidden" name="id" value="{{ location.id }}">
+              <form method="post" action="/admin/locations/{{ location.location_id }}/delete" style="display:inline;"><input type="hidden" name="id" value="{{ location.location_id }}">
               <button type="submit" class="action-link" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;padding:0;" title="Deactivate location">Deactivate</button>
               </form>
               {% else %}
-              <form method="post" action="/admin/locations/{{ location.id }}/reactivate" style="display:inline;"><input type="hidden" name="id" value="{{ location.id }}">
+              <form method="post" action="/admin/locations/{{ location.location_id }}/reactivate" style="display:inline;"><input type="hidden" name="id" value="{{ location.location_id }}">
               <button type="submit" class="action-link" style="background:none;border:none;color:var(--un-success-default);cursor:pointer;padding:0;" title="Reactivate location">Reactivate</button>
               </form>
               {% endif %}
