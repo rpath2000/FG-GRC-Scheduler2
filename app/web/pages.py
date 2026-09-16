@@ -6,6 +6,8 @@ build step, no self-HTTP calls.
 """
 from __future__ import annotations
 
+import re
+
 from datetime import datetime, timedelta, timezone, date as date_cls
 from typing import Optional
 
@@ -34,6 +36,24 @@ from app.services import (
 
 router = APIRouter()
 templates = Jinja2Templates(directory="app/web/templates")
+
+_NOPAD = re.compile(r"%-([dmHIj])")
+
+
+def _fmt(value, fmt: str) -> str:
+    """`strftime` with the no-pad `%-d` forms, on every platform.
+
+    `%-d` is a glibc extension: it renders "Sep 7" on Linux and raises
+    `ValueError: Invalid format string` on Windows and macOS. The Scheduler page's date-range caption
+    used it four times, so both `/` and `/scheduler` returned HTTP 500 anywhere but a Linux container --
+    including a developer running the app from a clone, which is the one environment nothing tests.
+    Each no-pad field is rendered on its own with the portable directive and its leading zero stripped.
+    """
+    def one(match):
+        return value.strftime("%" + match.group(1)).lstrip("0") or "0"
+
+    return value.strftime(_NOPAD.sub(one, fmt))
+
 
 STATIC_USER = "Hamelin, Alex"
 MID_BLUE = "#3b6fd6"
@@ -167,9 +187,9 @@ def scheduler_page(
     if view == "week":
         end_display = range_end - timedelta(days=1)
         if range_start.month == end_display.month:
-            date_range_label = f"{range_start.strftime('%b %-d')} \u2013 {end_display.strftime('%-d, %Y')}"
+            date_range_label = f"{_fmt(range_start, '%b %-d')} \u2013 {_fmt(end_display, '%-d, %Y')}"
         else:
-            date_range_label = f"{range_start.strftime('%b %-d')} \u2013 {end_display.strftime('%b %-d, %Y')}"
+            date_range_label = f"{_fmt(range_start, '%b %-d')} \u2013 {_fmt(end_display, '%b %-d, %Y')}"
     else:
         date_range_label = range_start.strftime("%b %-d, %Y")
 
@@ -196,9 +216,9 @@ def index_page(request: Request, db: Session = Depends(get_db)):
     range_start = today
     range_end = range_start + timedelta(days=6)
     if range_start.month == range_end.month:
-        range_label = f"{range_start.strftime('%b %-d')} \u2013 {range_end.strftime('%-d, %Y')}"
+        range_label = f"{_fmt(range_start, '%b %-d')} \u2013 {_fmt(range_end, '%-d, %Y')}"
     else:
-        range_label = f"{range_start.strftime('%b %-d')} \u2013 {range_end.strftime('%b %-d, %Y')}"
+        range_label = f"{_fmt(range_start, '%b %-d')} \u2013 {_fmt(range_end, '%b %-d, %Y')}"
     return templates.TemplateResponse(request, "index.html", {"range_label": range_label})
 
 
