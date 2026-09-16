@@ -1,0 +1,599 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Type Administration - GRC Instrument Scheduler</title>
+<style>
+:root {
+  --un-background-01: #ffffff;
+  --un-background-02: #f8f9fa;
+  --un-background-inverse: #071D49;
+  --un-text-default: #071D49;
+  --un-text-muted: #6c757d;
+  --un-text-inverse: #ffffff;
+  --un-primary-default: #0066CC;
+  --un-primary-hover: #0052A3;
+  --un-primary-pressed: #003D7A;
+  --un-brand-500: #0066CC;
+  --un-error-default: #d32f2f;
+  --un-success-default: #2e7d32;
+  --un-warning-default: #f57c00;
+  --un-info-default: #0288d1;
+  --un-border-color-container: #dee2e6;
+  --un-border-color-input: #ced4da;
+  --un-border-color-separator: #e9ecef;
+  --un-focus-color: #0066CC;
+  --un-focus-width: 3px;
+  --un-focus-offset: 2px;
+  --un-font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --un-font-family-mono: "Courier New", Courier, monospace;
+  --un-font-weight-primary-regular: 400;
+  --un-font-weight-primary-bold: 600;
+  --un-font-weight-primary-light: 300;
+  --un-typography-title-h1-font-size: 2rem;
+  --un-typography-title-h2-font-size: 1.5rem;
+  --un-typography-body-font-size: 0.875rem;
+  --un-typography-caption-font-size: 0.75rem;
+  --un-radius-small: 4px;
+  --un-radius-medium: 6px;
+  --un-radius-large: 8px;
+  --un-space-card-body-horizontal: 1.5rem;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--un-font-family-primary);
+  font-size: var(--un-typography-body-font-size);
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+  line-height: 1.5;
+}
+
+.unity-theme {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+header {
+  background: var(--un-background-01);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  padding: 1rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-badge {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--un-background-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--un-text-inverse);
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 1.25rem;
+}
+
+.app-title {
+  font-size: 1.125rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-background-inverse);
+}
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 2rem;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--un-text-default);
+  font-weight: var(--un-font-weight-primary-regular);
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid transparent;
+  display: inline-block;
+}
+
+nav a.active {
+  color: var(--un-primary-default);
+  border-bottom-color: var(--un-primary-default);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+nav a[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--un-border-color-container);
+}
+
+.user-name {
+  font-weight: var(--un-font-weight-primary-regular);
+}
+
+/* Main */
+main {
+  flex: 1;
+  padding: 2rem;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+h1 {
+  font-size: var(--un-typography-title-h1-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+button {
+  background: var(--un-primary-default);
+  color: var(--un-text-inverse);
+  border: none;
+  padding: 0.625rem 1.25rem;
+  border-radius: var(--un-radius-small);
+  font-size: var(--un-typography-body-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  cursor: pointer;
+  font-family: var(--un-font-family-primary);
+}
+
+button:hover {
+  background: var(--un-primary-hover);
+}
+
+button:active {
+  background: var(--un-primary-pressed);
+}
+
+button.un-btn--secondary {
+  background: var(--un-background-01);
+  color: var(--un-primary-default);
+  border: 1px solid var(--un-primary-default);
+}
+
+button.un-btn--secondary:hover {
+  background: var(--un-background-02);
+}
+
+/* Form Section */
+.form-section {
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-medium);
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.form-section h2 {
+  font-size: var(--un-typography-title-h2-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  margin-bottom: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+}
+
+label {
+  font-weight: var(--un-font-weight-primary-bold);
+  margin-bottom: 0.25rem;
+  color: var(--un-text-default);
+}
+
+input[type="text"],
+input[type="hidden"] {
+  padding: 0.5rem;
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+  font-size: var(--un-typography-body-font-size);
+  font-family: var(--un-font-family-primary);
+}
+
+input[type="text"]:focus {
+  outline: none;
+  border-color: var(--un-focus-color);
+  box-shadow: 0 0 0 var(--un-focus-width) rgba(0, 102, 204, 0.2);
+}
+
+.form-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.error-message {
+  background: #fdecea;
+  border: 1px solid var(--un-error-default);
+  color: var(--un-error-default);
+  padding: 0.75rem;
+  border-radius: var(--un-radius-small);
+  margin-top: 1rem;
+  font-size: var(--un-typography-body-font-size);
+}
+
+.success-message {
+  background: #e8f5e9;
+  border: 1px solid var(--un-success-default);
+  color: var(--un-success-default);
+  padding: 0.75rem;
+  border-radius: var(--un-radius-small);
+  margin-top: 1rem;
+  font-size: var(--un-typography-body-font-size);
+}
+
+.warning-message {
+  background: #fff3e0;
+  border: 1px solid var(--un-warning-default);
+  color: var(--un-warning-default);
+  padding: 0.75rem;
+  border-radius: var(--un-radius-small);
+  margin-top: 1rem;
+  font-size: var(--un-typography-body-font-size);
+}
+
+/* Table Section */
+.table-section {
+  background: var(--un-background-01);
+}
+
+.table-section h2 {
+  font-size: var(--un-typography-title-h2-font-size);
+  font-weight: var(--un-font-weight-primary-bold);
+  margin-bottom: 1rem;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  border: 1px solid var(--un-border-color-container);
+}
+
+thead {
+  background: var(--un-background-02);
+}
+
+th {
+  text-align: left;
+  padding: 0.75rem 1rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  border-bottom: 1px solid var(--un-border-color-container);
+  position: relative;
+}
+
+th::after {
+  content: "↕";
+  position: absolute;
+  right: 0.5rem;
+  color: var(--un-text-muted);
+  font-size: 0.75rem;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--un-border-color-separator);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--un-background-02);
+}
+
+td {
+  padding: 0.75rem 1rem;
+}
+
+a {
+  color: var(--un-primary-default);
+  text-decoration: none;
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.action-icons {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.icon-button {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--un-primary-default);
+}
+
+.icon-button:hover {
+  color: var(--un-primary-hover);
+}
+
+.status-active {
+  color: var(--un-success-default);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+.status-inactive {
+  color: var(--un-text-muted);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--un-text-muted);
+}
+
+/* Footer */
+footer {
+  background: var(--un-background-01);
+  border-top: 1px solid var(--un-border-color-separator);
+  padding: 1rem 2rem;
+  text-align: center;
+  color: var(--un-text-muted);
+  font-size: var(--un-typography-caption-font-size);
+}
+
+.utc-notice {
+  background: var(--un-background-02);
+  padding: 0.5rem 1rem;
+  border-radius: var(--un-radius-small);
+  font-size: var(--un-typography-caption-font-size);
+  color: var(--un-text-muted);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+</style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+<div class="unity-theme" data-mode="light" data-density="balanced">
+
+<header>
+  <div class="header-left">
+    <div class="logo-section">
+      <div class="logo-badge">G</div>
+      <span class="app-title">GRC Instrument Scheduler</span>
+    </div>
+    <nav>
+      <ul>
+        <li><a href="/">Home</a></li>
+        <li><a href="/instruments">Instruments</a></li>
+        <li><a href="/admin/locations" class="active">Admin</a></li>
+        <li><a href="#" aria-disabled="true">Events</a></li>
+      </ul>
+    </nav>
+  </div>
+  <div class="header-right">
+    <div class="user-avatar"></div>
+    <span class="user-name">Hamelin, Alex</span>
+    <span>▼</span>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <h1>Type Administration</h1>
+  </div>
+
+  <div class="utc-notice">
+    All times displayed in UTC
+  </div>
+
+  {% if success_message %}
+  <div class="success-message">{{ success_message }}</div>
+  {% endif %}
+
+  {% if error_message %}
+  <div class="error-message">{{ error_message }}</div>
+  {% endif %}
+
+  {% if warning_message %}
+  <div class="warning-message">{{ warning_message }}</div>
+  {% endif %}
+
+  <section class="form-section">
+    <h2>Add New Type</h2>
+    <form method="post" action="/admin/types/create">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="type-name">Type Name *</label>
+          <input type="text" id="type-name" name="name" required maxlength="100" value="{{ name }}" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit">Add Type</button>
+        <button type="reset" class="un-btn--secondary">Clear</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="form-section" style="display: none;">
+    <h2>Edit Type</h2>
+    <form method="post" action="/admin/types/update">
+      <input type="hidden" name="id" id="edit-id" />
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="edit-name">Type Name *</label>
+          <input type="text" id="edit-name" name="name" required maxlength="100" value="{{ name }}" />
+        </div>
+      </div>
+      <div class="form-actions">
+        <button type="submit">Update Type</button>
+        <button type="button" class="un-btn--secondary">Cancel</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="table-section">
+    <h2>Existing Types</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><a href="/admin/types?edit=1">Liquid Handler</a></td>
+          <td><span class="status-active">Active</span></td>
+          <td>
+            <div class="action-icons">
+              <form method="post" action="/admin/types/edit" style="display: inline;">
+                <input type="hidden" name="id" value="1" />
+                <button type="submit" class="icon-button" title="Edit" aria-label="Edit Liquid Handler"><span class="sr-only">Edit Type</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
+                  </svg>
+                </button>
+              </form>
+              <form method="post" action="/admin/types/delete" style="display: inline;">
+                <input type="hidden" name="id" value="1" />
+                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate Liquid Handler"><span class="sr-only">Deactivate Type</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><a href="/admin/types?edit=2">Sonicator</a></td>
+          <td><span class="status-active">Active</span></td>
+          <td>
+            <div class="action-icons">
+              <form method="post" action="/admin/types/edit" style="display: inline;">
+                <input type="hidden" name="id" value="2" />
+                <button type="submit" class="icon-button" title="Edit" aria-label="Edit Sonicator"><span class="sr-only">Edit Type</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
+                  </svg>
+                </button>
+              </form>
+              <form method="post" action="/admin/types/delete" style="display: inline;">
+                <input type="hidden" name="id" value="2" />
+                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate Sonicator"><span class="sr-only">Deactivate Type</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><a href="/admin/types?edit=3">Extraction</a></td>
+          <td><span class="status-active">Active</span></td>
+          <td>
+            <div class="action-icons">
+              <form method="post" action="/admin/types/edit" style="display: inline;">
+                <input type="hidden" name="id" value="3" />
+                <button type="submit" class="icon-button" title="Edit" aria-label="Edit Extraction"><span class="sr-only">Edit Type</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
+                  </svg>
+                </button>
+              </form>
+              <form method="post" action="/admin/types/delete" style="display: inline;">
+                <input type="hidden" name="id" value="3" />
+                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate Extraction"><span class="sr-only">Deactivate Type</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><a href="/admin/types?edit=4">Sequencer</a></td>
+          <td><span class="status-active">Active</span></td>
+          <td>
+            <div class="action-icons">
+              <form method="post" action="/admin/types/edit" style="display: inline;">
+                <input type="hidden" name="id" value="4" />
+                <button type="submit" class="icon-button" title="Edit" aria-label="Edit Sequencer"><span class="sr-only">Edit Type</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
+                  </svg>
+                </button>
+              </form>
+              <form method="post" action="/admin/types/delete" style="display: inline;">
+                <input type="hidden" name="id" value="4" />
+                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate Sequencer"><span class="sr-only">Deactivate Type</span>
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
+                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
+                  </svg>
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+</main>
+
+<footer>
+  <p>Copyright © 2026 AbbVie Inc.</p>
+</footer>
+
+</div>
+</body>
+</html>

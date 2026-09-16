@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Audit Log - GRC Instrument Scheduler</title>
+<style>
+:root {
+  --un-background-01: #ffffff;
+  --un-background-02: #f8f9fa;
+  --un-text-default: #071D49;
+  --un-text-muted: #6c757d;
+  --un-primary-default: #0d6efd;
+  --un-primary-hover: #0b5ed7;
+  --un-border-color-separator: #dee2e6;
+  --un-border-color-container: #ced4da;
+  --un-font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --un-font-weight-primary-regular: 400;
+  --un-font-weight-primary-bold: 600;
+  --un-radius-small: 4px;
+  --un-space-card-body-horizontal: 1rem;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--un-font-family-primary);
+  font-weight: var(--un-font-weight-primary-regular);
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+  line-height: 1.5;
+}
+
+.unity-theme {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Header */
+header {
+  background: var(--un-background-01);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  padding: 0.75rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+}
+
+.logo-section {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.logo-badge {
+  width: 40px;
+  height: 40px;
+  background: var(--un-text-default);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--un-background-01);
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 1.25rem;
+}
+
+.app-title {
+  font-size: 1.25rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+}
+
+nav {
+  display: flex;
+  gap: 2rem;
+}
+
+nav a {
+  text-decoration: none;
+  color: var(--un-text-default);
+  font-weight: var(--un-font-weight-primary-regular);
+  padding-bottom: 0.5rem;
+  border-bottom: 3px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+nav a:hover {
+  color: var(--un-primary-hover);
+}
+
+nav a.active {
+  color: var(--un-primary-default);
+  border-bottom-color: var(--un-primary-default);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+nav a.disabled {
+  color: var(--un-text-muted);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--un-text-default);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  background: var(--un-background-02);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 0.875rem;
+}
+
+/* Main content */
+main {
+  flex: 1;
+  padding: 2rem;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+  margin-bottom: 0.5rem;
+}
+
+.utc-notice {
+  color: var(--un-text-muted);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+/* Table */
+.table-container {
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-small);
+  overflow: hidden;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: var(--un-background-02);
+}
+
+thead th {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  font-size: 0.875rem;
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--un-border-color-separator);
+}
+
+tbody tr:nth-child(even) {
+  background: var(--un-background-02);
+}
+
+tbody tr:last-child {
+  border-bottom: none;
+}
+
+tbody td {
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: var(--un-text-default);
+  vertical-align: top;
+}
+
+.timestamp {
+  white-space: nowrap;
+}
+
+.entity-info {
+  font-family: monospace;
+  font-size: 0.8125rem;
+}
+
+.action-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--un-radius-small);
+  font-size: 0.75rem;
+  font-weight: var(--un-font-weight-primary-bold);
+  background: var(--un-background-02);
+  color: var(--un-text-default);
+  border: 1px solid var(--un-border-color-container);
+}
+
+.description {
+  line-height: 1.4;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: var(--un-text-muted);
+}
+
+/* Footer */
+footer {
+  background: var(--un-background-02);
+  border-top: 1px solid var(--un-border-color-separator);
+  padding: 1rem 2rem;
+  text-align: center;
+  color: var(--un-text-muted);
+  font-size: 0.875rem;
+}
+</style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+<div class="unity-theme" data-mode="light" data-density="balanced">
+
+<header>
+  <div class="header-left">
+    <div class="logo-section">
+      <div class="logo-badge">G</div>
+      <span class="app-title">GRC Instrument Scheduler</span>
+    </div>
+    <nav>
+      <a href="/">Home</a>
+      <a href="/instruments">Instruments</a>
+      <a href="#" class="disabled">Events</a>
+      <a href="/audit" class="active">Audit</a>
+    </nav>
+  </div>
+  <div class="user-section">
+    <div class="user-avatar">AH</div>
+    <span>Hamelin, Alex</span>
+    <span>↗</span>
+  </div>
+</header>
+
+<main>
+  <div class="page-header">
+    <h1 class="page-title">Audit Log</h1>
+    <p class="utc-notice">All times displayed in UTC</p>
+  </div>
+
+  {% if success_message %}
+  <p class="utc-notice">{{ success_message }}</p>
+  {% endif %}
+  {% if error_message %}
+  <p class="utc-notice">{{ error_message }}</p>
+  {% endif %}
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp (UTC)</th>
+          <th>Actor</th>
+          <th>Action</th>
+          <th>Entity Type</th>
+          <th>Entity ID</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for entry in audit_entries %}
+        <tr>
+          <td class="timestamp">{{ entry.timestamp }}</td>
+          <td>{{ entry.actor }}</td>
+          <td><span class="action-badge">{{ entry.action }}</span></td>
+          <td>{{ entry.entity_type }}</td>
+          <td class="entity-info">{{ entry.entity_id }}</td>
+          <td class="description">{{ entry.description }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="empty-state">No audit log entries found.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+</main>
+
+<footer>
+  <p>Copyright © 2026 AbbVie Inc.</p>
+</footer>
+
+</div>
+</body>
+</html>
