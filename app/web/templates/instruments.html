@@ -402,18 +402,18 @@
                     </tr>
                 </thead>
                 <tbody>
-                    {% for instrument in instruments %}
+                    {% for row in instruments %}
                     <tr>
-                        <td><form method="post" action="/instruments/favorites"><input type="hidden" name="instrument_id" value="{{ instrument.id }}"><button type="submit" class="icon-btn" aria-label="Toggle Favorite"><span class="sr-only">Toggle Favorite</span><span class="star-icon {% if instrument.is_favorite %}active{% endif %}" aria-hidden="true">{% if instrument.is_favorite %}★{% else %}☆{% endif %}</span></button></form></td>
-                        <td><a href="/instruments/form?instrument_id={{ instrument.id }}" class="icon-btn" aria-label="Edit instrument"><span class="edit-icon">✎</span></a></td>
-                        <td><a href="/instruments/form?instrument_id={{ instrument.id }}" class="name-link">{{ instrument.name }}</a></td>
-                        <td>{{ instrument.nickname }}</td>
-                        <td>{{ instrument.asset_id }}</td>
-                        <td>{{ instrument.location }}</td>
-                        <td>{{ instrument.vendor }}</td>
-                        <td>{{ instrument.type }}</td>
-                        <td>{% if instrument.color_name %}<div class="color-badge">{{ instrument.color_name }} <span class="color-swatch" style="background: {{ instrument.color_hex }};"></span></div>{% endif %}</td>
-                        <td>{% if instrument.is_active %}<span class="checkmark">✓</span>{% endif %}</td>
+                        <td><form method="post" action="/instruments/favorites"><input type="hidden" name="instrument_id" value="{{ row.id }}"><button type="submit" class="icon-btn" aria-label="Toggle Favorite"><span class="sr-only">Toggle Favorite</span><span class="star-icon {% if row.is_favorite %}active{% endif %}" aria-hidden="true">{% if row.is_favorite %}★{% else %}☆{% endif %}</span></button></form></td>
+                        <td><a href="/instruments/form?instrument_id={{ row.id }}" class="icon-btn" aria-label="Edit row"><span class="edit-icon">✎</span></a></td>
+                        <td><a href="/instruments/form?instrument_id={{ row.id }}" class="name-link">{{ row.name }}</a></td>
+                        <td>{{ row.nickname }}</td>
+                        <td>{{ row.asset_id }}</td>
+                        <td>{{ row.location }}</td>
+                        <td>{{ row.vendor }}</td>
+                        <td>{{ row.type }}</td>
+                        <td>{% if row.color_name %}<div class="color-badge">{{ row.color_name }} <span class="color-swatch" style="background: {{ row.color_hex }};"></span></div>{% endif %}</td>
+                        <td>{% if row.is_active %}<span class="checkmark">✓</span>{% endif %}</td>
                     </tr>
                     {% endfor %}
                 </tbody>
