@@ -1,0 +1,473 @@
+Looking at this template, I need to:
+
+1. Wire the date navigation form with proper method/action (it already has `method="get" action="/"` — but the route is `/scheduler`, so I'll point it there)
+2. Add success/error message handling (none currently visible in markup, but I must wrap something — I'll check for a hidden element to reveal... there isn't an explicit one, but the instructions require me to add the conditional wrapping wherever such an element would be hidden). Since no explicit hidden success/error element exists in this markup, I'll focus on the data substitution parts that are clearly required: date values, date range, day headers, and resource rows via loops.
+3. Replace hardcoded rows with a loop over `resources`, and day headers with a loop over `days`.
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRC Instrument Scheduler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            color: #1a1a1a;
+            background-color: #f5f5f5;
+        }
+
+        .header {
+            background-color: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #0d1f3c;
+        }
+
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background-color: #0d1f3c;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+
+        .nav {
+            display: flex;
+            gap: 0;
+        }
+
+        .nav a {
+            padding: 20px 20px;
+            text-decoration: none;
+            color: #5f6368;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 3px solid transparent;
+            transition: color 0.2s;
+        }
+
+        .nav a:hover {
+            color: #1a73e8;
+        }
+
+        .nav a.active {
+            color: #1a73e8;
+            border-bottom-color: #1a73e8;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: #1a1a1a;
+        }
+
+        .user-icon {
+            width: 24px;
+            height: 24px;
+            background-color: #1a1a1a;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+
+        .main-content {
+            padding: 24px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .page-title {
+            font-size: 32px;
+            font-weight: 400;
+            color: #0d1f3c;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn-link {
+            background: none;
+            border: none;
+            color: #1a73e8;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 0;
+        }
+
+        .btn-link:hover {
+            text-decoration: underline;
+        }
+
+        .scheduler-controls {
+            background-color: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 24px;
+        }
+
+        .controls-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .date-controls {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .sr-only {
+            position: absolute; width: 1px; height: 1px;
+            padding: 0; margin: -1px; overflow: hidden;
+            clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+        }
+        .nav-btn {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #dadce0;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: #5f6368;
+        }
+
+        .nav-btn:hover {
+            background-color: #f8f9fa;
+        }
+
+        .date-picker {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .date-picker input {
+            border: none;
+            outline: none;
+            font-size: 14px;
+            width: 100px;
+        }
+
+        .date-range {
+            font-size: 18px;
+            font-weight: 500;
+            color: #0d1f3c;
+        }
+
+        .view-controls {
+            display: flex;
+            border: 1px solid #dadce0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .view-btn {
+            padding: 6px 16px;
+            border: none;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            border-right: 1px solid #dadce0;
+            color: #5f6368;
+        }
+
+        .view-btn:last-child {
+            border-right: none;
+        }
+
+        .view-btn:hover {
+            background-color: #f8f9fa;
+        }
+
+        .view-btn.active {
+            background-color: #0d1f3c;
+            color: white;
+        }
+
+        .scheduler-grid {
+            overflow-x: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            background: white;
+        }
+
+        .grid-wrapper {
+            min-width: 1200px;
+        }
+
+        .grid-header {
+            display: grid;
+            grid-template-columns: 200px repeat(auto-fit, minmax(60px, 1fr));
+            border-bottom: 2px solid #e0e0e0;
+            background-color: #f8f9fa;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .grid-header-cell {
+            padding: 12px 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #0d1f3c;
+            border-right: 1px solid #e0e0e0;
+            text-align: center;
+        }
+
+        .grid-header-cell:first-child {
+            text-align: left;
+            padding-left: 16px;
+        }
+
+        .day-header {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 8px;
+        }
+
+        .day-name {
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .day-date {
+            font-size: 11px;
+            color: #5f6368;
+        }
+
+        .time-headers {
+            display: grid;
+            grid-template-columns: 200px repeat(auto-fit, minmax(60px, 1fr));
+            border-bottom: 1px solid #e0e0e0;
+            background-color: #fafafa;
+            position: sticky;
+            top: 52px;
+            z-index: 9;
+        }
+
+        .time-header {
+            padding: 8px 4px;
+            font-size: 11px;
+            color: #5f6368;
+            text-align: center;
+            border-right: 1px solid #e0e0e0;
+        }
+
+        .grid-body {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .grid-row {
+            display: grid;
+            grid-template-columns: 200px repeat(auto-fit, minmax(60px, 1fr));
+            border-bottom: 1px solid #e0e0e0;
+            min-height: 48px;
+        }
+
+        .grid-row:hover {
+            background-color: #f8f9fa;
+        }
+
+        .resource-cell {
+            padding: 12px 16px;
+            font-size: 13px;
+            color: #1a1a1a;
+            border-right: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            background-color: white;
+            position: sticky;
+            left: 0;
+            z-index: 5;
+        }
+
+        .time-cell {
+            border-right: 1px solid #e0e0e0;
+            background-color: white;
+        }
+
+        .footer {
+            padding: 24px;
+            text-align: center;
+            color: #5f6368;
+            font-size: 13px;
+            background-color: white;
+            border-top: 1px solid #e0e0e0;
+            margin-top: 24px;
+        }
+
+        .abbvie-logo {
+            display: inline-block;
+            margin-bottom: 8px;
+        }
+    </style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">⟲</div>
+                <span>GRC Instrument Scheduler</span>
+            </div>
+            <nav class="nav">
+                <a href="/" class="active">Home</a>
+                <a href="/instruments">Instruments</a>
+                <a href="/admin/locations">Admin ▾</a>
+                <a href="#" class="disabled" aria-disabled="true">Events</a>
+            </nav>
+        </div>
+        <div class="header-right">
+            <div class="user-info">
+                <span class="user-icon">👤</span>
+                <span>{{ user.name }}</span>
+                <span>🔽</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="main-content">
+        {% if success_message %}
+        <div>{{ success_message }}</div>
+        {% endif %}
+        {% if error_message %}
+        <div>{{ error_message }}</div>
+        {% endif %}
+        <div class="page-header">
+            <h1 class="page-title">Scheduler</h1>
+            <div class="page-actions">
+                <button type="button" class="btn-link" disabled>Show Filters</button>
+                <button type="button" class="btn-link" disabled>Export</button>
+            </div>
+        </div>
+
+        <div class="scheduler-controls">
+            <form method="get" action="/scheduler" class="controls-row">
+                <div class="date-controls">
+                    <button type="submit" name="nav" value="prev" class="nav-btn"><span class="sr-only">Show Range</span><span aria-hidden="true">&lt;</span></button>
+                    <button type="submit" name="nav" value="next" class="nav-btn"><span class="sr-only">Next</span><span aria-hidden="true">&gt;</span></button>
+                    <div class="date-picker">
+                        <input type="date" name="date" value="{{ selected_date }}"><input type="hidden" name="view" value="{{ current_view }}">
+                        <span>📅</span>
+                    </div>
+                </div>
+                <div class="date-range">{{ date_range_label }}</div>
+                <div class="view-controls">
+                    <button type="submit" name="view" value="day" class="view-btn">Day</button>
+                    <button type="submit" name="view" value="week" class="view-btn active">Week</button>
+                    <button type="button" class="view-btn" disabled>month</button>
+                    <button type="button" class="view-btn" disabled>year</button>
+                </div>
+            </form>
+
+            <div class="scheduler-grid">
+                <div class="grid-wrapper">
+                    <div class="grid-header">
+                        <div class="grid-header-cell">Resources</div>
+                        {% for day in days %}
+                        <div class="grid-header-cell">
+                            <div class="day-header">
+                                <div class="day-name">{{ day.label }}</div>
+                            </div>
+                        </div>
+                        {% for slot in day.extra_slots %}
+                        <div class="grid-header-cell"></div>
+                        {% endfor %}
+                        {% endfor %}
+                    </div>
+
+                    <div class="time-headers">
+                        <div class="time-header"></div>
+                        {% for time_label in time_headers %}
+                        <div class="time-header">{{ time_label }}</div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="grid-body">
+                        {% for resource in resources %}
+                        <div class="grid-row">
+                            <div class="resource-cell">{{ resource.name }}</div>
+                            {% for slot in resource.slots %}
+                            <div class="time-cell"></div>
+                            {% endfor %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="abbvie-logo">
+            <svg width="80" height="20" viewBox="0 0 80 20" fill="currentColor">
+                <text x="0" y="15" font-family="sans-serif" font-size="14" fill="#5f6368">abbvie</text>
+            </svg>
+        </div>
+        <div>Copyright © 2026 AbbVie Inc.</div>
+    </footer>
+</body>
+</html>
+```
