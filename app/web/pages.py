@@ -13,7 +13,9 @@ from typing import Optional
 
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.templating import Jinja2Templates
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
+
 
 from app.contracts import (
     ConflictError,
@@ -304,7 +306,7 @@ def instruments_favorites_page(
     )
     return templates.TemplateResponse(
         request,
-        "instruments.html",
+        "instruments-favorites.html",
         {
             "error_message": "",
             "filters": filters_ctx,
@@ -332,8 +334,8 @@ def toggle_favorite(
         updated = instrument_service.toggle_favorite(instrument_id)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Update",
-            entity_type="Instrument",
+            action_type="UPDATE",
+            entity_type="INSTRUMENT",
             entity_id=instrument_id,
             description=f"IsFavorite changed to {updated.is_favorite}",
         )
@@ -381,7 +383,7 @@ def instrument_form_page(
 
     return templates.TemplateResponse(
         request,
-        "instruments.html",
+        "instruments-form.html",
         {
             "error_message": "",
             "filters": {"nickname": "", "location": "", "vendor": "", "type": "", "favorites": ""},
@@ -458,8 +460,8 @@ def instrument_form_submit(
             description = "Updated fields: " + "; ".join(changes) if changes else "No field changes"
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Update",
-                entity_type="Instrument",
+                action_type="UPDATE",
+                entity_type="INSTRUMENT",
                 entity_id=updated.instrument_id,
                 description=description,
             )
@@ -478,12 +480,20 @@ def instrument_form_submit(
             updated_instrument = created
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Create",
-                entity_type="Instrument",
+                action_type="CREATE",
+                entity_type="INSTRUMENT",
                 entity_id=created.instrument_id,
                 description=f"Created instrument '{created.name}' ({created.nickname})",
             )
             success_message = "Instrument created successfully."
+    except IntegrityError:
+        # A lookup id that no row owns -- an empty or stale dropdown, or a hand-made POST.
+        # Unhandled, this surfaced as HTTP 500 (ForeignKeyViolation: location_id=1 is not
+        # present in table "locations") on a deployed app whose master-data tables were empty.
+        db.rollback()
+        error_message = (
+            "That location, vendor or type no longer exists. Pick a current value and retry."
+        )
     except (ValidationError, DuplicateError, NotFoundError, InvalidStatusError) as exc:
         error_message = str(exc)
 
@@ -492,7 +502,7 @@ def instrument_form_submit(
     )
     return templates.TemplateResponse(
         request,
-        "instruments.html",
+        "instruments-form.html",
         {
             "error_message": error_message,
             "filters": filters_ctx,
@@ -606,8 +616,8 @@ def reservation_form_submit(
     if result is not None:
         audit_service.log_action(
             actor=actor,
-            action_type="Create",
-            entity_type="Reservation",
+            action_type="CREATE",
+            entity_type="RESERVATION",
             entity_id=result.reservation.reservation_id,
             description=(
                 f"Created reservation for instrument {result.reservation.instrument_id} "
@@ -617,8 +627,8 @@ def reservation_form_submit(
         for overridden_id in result.overridden_ids:
             audit_service.log_action(
                 actor=actor,
-                action_type="Update",
-                entity_type="Reservation",
+                action_type="UPDATE",
+                entity_type="RESERVATION",
                 entity_id=overridden_id,
                 description=(
                     f"Reservation {overridden_id} replaced by new reservation "
@@ -717,8 +727,8 @@ def admin_locations_submit(
             updated = master_service.update_location(loc_id, name)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Update",
-                entity_type="Location",
+                action_type="UPDATE",
+                entity_type="LOCATION",
                 entity_id=updated.location_id,
                 description=f"Location renamed to '{updated.name}'",
             )
@@ -727,8 +737,8 @@ def admin_locations_submit(
             master_service.deactivate_location(loc_id)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Deactivate",
-                entity_type="Location",
+                action_type="DEACTIVATE",
+                entity_type="LOCATION",
                 entity_id=loc_id,
                 description="Location deactivated",
             )
@@ -737,8 +747,8 @@ def admin_locations_submit(
             created = master_service.create_location(name)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Create",
-                entity_type="Location",
+                action_type="CREATE",
+                entity_type="LOCATION",
                 entity_id=created.location_id,
                 description=f"Created location '{created.name}'",
             )
@@ -771,8 +781,8 @@ def admin_locations_create(
         created = master_service.create_location(name)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Create",
-            entity_type="Location",
+            action_type="CREATE",
+            entity_type="LOCATION",
             entity_id=created.location_id,
             description=f"Created location '{created.name}'",
         )
@@ -804,8 +814,8 @@ def admin_locations_update(
         updated = master_service.update_location(id, name)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Update",
-            entity_type="Location",
+            action_type="UPDATE",
+            entity_type="LOCATION",
             entity_id=updated.location_id,
             description=f"Location renamed to '{updated.name}'",
         )
@@ -837,8 +847,8 @@ def admin_locations_delete(
         count = master_service.deactivate_location(target_id)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Deactivate",
-            entity_type="Location",
+            action_type="DEACTIVATE",
+            entity_type="LOCATION",
             entity_id=target_id,
             description="Location deactivated",
         )
@@ -871,8 +881,8 @@ def admin_locations_reactivate(
         updated = master_service.reactivate_location(target_id)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Reactivate",
-            entity_type="Location",
+            action_type="ACTIVATE",
+            entity_type="LOCATION",
             entity_id=updated.location_id,
             description="Location reactivated",
         )
@@ -929,8 +939,8 @@ def admin_vendors_submit(
             updated = master_service.update_vendor(v_id, name)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Update",
-                entity_type="Vendor",
+                action_type="UPDATE",
+                entity_type="VENDOR",
                 entity_id=updated.vendor_id,
                 description=f"Vendor renamed to '{updated.name}'",
             )
@@ -938,8 +948,8 @@ def admin_vendors_submit(
                 count = master_service.deactivate_vendor(v_id)
                 audit_service.log_action(
                     actor="Unknown",
-                    action_type="Deactivate",
-                    entity_type="Vendor",
+                    action_type="DEACTIVATE",
+                    entity_type="VENDOR",
                     entity_id=v_id,
                     description="Vendor deactivated",
                 )
@@ -950,8 +960,8 @@ def admin_vendors_submit(
             created = master_service.create_vendor(name)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Create",
-                entity_type="Vendor",
+                action_type="CREATE",
+                entity_type="VENDOR",
                 entity_id=created.vendor_id,
                 description=f"Created vendor '{created.name}'",
             )
@@ -1000,8 +1010,8 @@ def admin_types_create(
         created = master_service.create_type(name)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Create",
-            entity_type="InstrumentType",
+            action_type="CREATE",
+            entity_type="INSTRUMENT_TYPE",
             entity_id=created.type_id,
             description=f"Created type '{created.name}'",
         )
@@ -1031,8 +1041,8 @@ def admin_types_update(
         updated = master_service.update_type(id, name)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Update",
-            entity_type="InstrumentType",
+            action_type="UPDATE",
+            entity_type="INSTRUMENT_TYPE",
             entity_id=updated.type_id,
             description=f"Type renamed to '{updated.name}'",
         )
@@ -1072,8 +1082,8 @@ def admin_types_delete(
         count = master_service.deactivate_type(id)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Deactivate",
-            entity_type="InstrumentType",
+            action_type="DEACTIVATE",
+            entity_type="INSTRUMENT_TYPE",
             entity_id=id,
             description="Type deactivated",
         )
@@ -1108,8 +1118,8 @@ def admin_types_submit(
             updated = master_service.update_type(type_id, name)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Update",
-                entity_type="InstrumentType",
+                action_type="UPDATE",
+                entity_type="INSTRUMENT_TYPE",
                 entity_id=updated.type_id,
                 description=f"Type renamed to '{updated.name}'",
             )
@@ -1118,8 +1128,8 @@ def admin_types_submit(
             master_service.deactivate_type(type_id)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Deactivate",
-                entity_type="InstrumentType",
+                action_type="DEACTIVATE",
+                entity_type="INSTRUMENT_TYPE",
                 entity_id=type_id,
                 description="Type deactivated",
             )
@@ -1128,8 +1138,8 @@ def admin_types_submit(
             created = master_service.create_type(name)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Create",
-                entity_type="InstrumentType",
+                action_type="CREATE",
+                entity_type="INSTRUMENT_TYPE",
                 entity_id=created.type_id,
                 description=f"Created type '{created.name}'",
             )
@@ -1182,8 +1192,8 @@ def admin_purposes_submit(
             updated = master_service.update_purpose(p_id, name)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Update",
-                entity_type="ReservationPurpose",
+                action_type="UPDATE",
+                entity_type="RESERVATION_PURPOSE",
                 entity_id=updated.reservation_purpose_id,
                 description=f"Purpose renamed to '{updated.name}'",
             )
@@ -1192,8 +1202,8 @@ def admin_purposes_submit(
             created = master_service.create_purpose(name)
             audit_service.log_action(
                 actor="Unknown",
-                action_type="Create",
-                entity_type="ReservationPurpose",
+                action_type="CREATE",
+                entity_type="RESERVATION_PURPOSE",
                 entity_id=created.reservation_purpose_id,
                 description=f"Created purpose '{created.name}'",
             )
@@ -1240,8 +1250,8 @@ def admin_purposes_delete(
         count = master_service.deactivate_purpose(purpose_id)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Deactivate",
-            entity_type="ReservationPurpose",
+            action_type="DEACTIVATE",
+            entity_type="RESERVATION_PURPOSE",
             entity_id=purpose_id,
             description="Purpose deactivated",
         )
@@ -1272,8 +1282,8 @@ def admin_purposes_restore(
         updated = master_service.reactivate_purpose(purpose_id)
         audit_service.log_action(
             actor="Unknown",
-            action_type="Reactivate",
-            entity_type="ReservationPurpose",
+            action_type="ACTIVATE",
+            entity_type="RESERVATION_PURPOSE",
             entity_id=updated.reservation_purpose_id,
             description="Purpose reactivated",
         )
