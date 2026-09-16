@@ -200,6 +200,15 @@
       margin: 4px 0;
     }
 
+    .error-message {
+      background: #f8d7da;
+      border-left: 3px solid var(--un-error-default);
+      padding: 16px;
+      margin-bottom: 24px;
+      border-radius: var(--un-radius-small);
+      color: #721c24;
+    }
+
     .override-list {
       margin: 12px 0 0 0;
       padding-left: 20px;
@@ -359,6 +368,17 @@
       <h1>Create Reservation</h1>
       <p class="page-subtitle">Schedule a new instrument reservation with validation and conflict detection</p>
 
+      {% if success_message %}
+      <div class="success-message">
+        <p>{{ success_message }}</p>
+      </div>
+      {% endif %}
+      {% if error_message %}
+      <div class="error-message">
+        <p>{{ error_message }}</p>
+      </div>
+      {% endif %}
+
       <div class="utc-notice">
         <strong>⏰ All times displayed in UTC</strong> — Enter start and end times in UTC timezone. No local time conversion is provided.
       </div>
@@ -439,6 +459,7 @@
             id="can_be_overridden" 
             name="can_be_overridden" 
             value="true"
+            {% if can_be_overridden %}checked{% endif %}
           />
           <label for="can_be_overridden">
             This reservation can be overridden by future bookings

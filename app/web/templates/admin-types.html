@@ -428,6 +428,16 @@ footer {
     All times displayed in UTC
   </div>
 
+  {% if success_message %}
+  <div class="success-message">{{ success_message }}</div>
+  {% endif %}
+  {% if error_message %}
+  <div class="error-message">{{ error_message }}</div>
+  {% endif %}
+  {% if warning_message %}
+  <div class="warning-message">⚠️ {{ warning_message }}</div>
+  {% endif %}
+
   <section class="form-section">
     <h2>Add New Type</h2>
     <form method="post" action="/admin/types/create">
@@ -472,106 +482,45 @@ footer {
         </tr>
       </thead>
       <tbody>
+        {% for item in types %}
         <tr>
-          <td><a href="/admin/types?edit=1">Liquid Handler</a></td>
-          <td><span class="status-active">Active</span></td>
+          <td><a href="/admin/types?edit={{ item.id }}">{{ item.name }}</a></td>
+          <td>
+            {% if item.is_active %}
+            <span class="status-active">Active</span>
+            {% else %}
+            <span class="status-inactive">Inactive</span>
+            {% endif %}
+          </td>
           <td>
             <div class="action-icons">
               <form method="post" action="/admin/types/edit" style="display: inline;">
-                <input type="hidden" name="id" value="1" />
-                <button type="submit" class="icon-button" title="Edit" aria-label="Edit Liquid Handler"><span class="sr-only">Edit Type</span>
+                <input type="hidden" name="id" value="{{ item.id }}" />
+                <button type="submit" class="icon-button" title="Edit" aria-label="Edit {{ item.name }}"><span class="sr-only">Edit Type</span>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
                   </svg>
                 </button>
               </form>
+              {% if item.is_active %}
               <form method="post" action="/admin/types/delete" style="display: inline;">
-                <input type="hidden" name="id" value="1" />
-                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate Liquid Handler"><span class="sr-only">Deactivate Type</span>
+                <input type="hidden" name="id" value="{{ item.id }}" />
+                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate {{ item.name }}"><span class="sr-only">Deactivate Type</span>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
                     <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
                     <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
                   </svg>
                 </button>
               </form>
+              {% endif %}
             </div>
           </td>
         </tr>
+        {% else %}
         <tr>
-          <td><a href="/admin/types?edit=2">Sonicator</a></td>
-          <td><span class="status-active">Active</span></td>
-          <td>
-            <div class="action-icons">
-              <form method="post" action="/admin/types/edit" style="display: inline;">
-                <input type="hidden" name="id" value="2" />
-                <button type="submit" class="icon-button" title="Edit" aria-label="Edit Sonicator"><span class="sr-only">Edit Type</span>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
-                  </svg>
-                </button>
-              </form>
-              <form method="post" action="/admin/types/delete" style="display: inline;">
-                <input type="hidden" name="id" value="2" />
-                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate Sonicator"><span class="sr-only">Deactivate Type</span>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                  </svg>
-                </button>
-              </form>
-            </div>
-          </td>
+          <td colspan="3" class="empty-state">No types found.</td>
         </tr>
-        <tr>
-          <td><a href="/admin/types?edit=3">Extraction</a></td>
-          <td><span class="status-active">Active</span></td>
-          <td>
-            <div class="action-icons">
-              <form method="post" action="/admin/types/edit" style="display: inline;">
-                <input type="hidden" name="id" value="3" />
-                <button type="submit" class="icon-button" title="Edit" aria-label="Edit Extraction"><span class="sr-only">Edit Type</span>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
-                  </svg>
-                </button>
-              </form>
-              <form method="post" action="/admin/types/delete" style="display: inline;">
-                <input type="hidden" name="id" value="3" />
-                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate Extraction"><span class="sr-only">Deactivate Type</span>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                  </svg>
-                </button>
-              </form>
-            </div>
-          </td>
-        </tr>
-        <tr>
-          <td><a href="/admin/types?edit=4">Sequencer</a></td>
-          <td><span class="status-active">Active</span></td>
-          <td>
-            <div class="action-icons">
-              <form method="post" action="/admin/types/edit" style="display: inline;">
-                <input type="hidden" name="id" value="4" />
-                <button type="submit" class="icon-button" title="Edit" aria-label="Edit Sequencer"><span class="sr-only">Edit Type</span>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M12.854 2.854a.5.5 0 0 0-.708 0L11 4l1.5 1.5 1.146-1.146a.5.5 0 0 0 0-.708l-.792-.792zM10.5 5.5L4 12H3v-1l6.5-6.5L10.5 5.5z"/>
-                  </svg>
-                </button>
-              </form>
-              <form method="post" action="/admin/types/delete" style="display: inline;">
-                <input type="hidden" name="id" value="4" />
-                <button type="submit" class="icon-button" title="Deactivate" aria-label="Deactivate Sequencer"><span class="sr-only">Deactivate Type</span>
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
-                    <path d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5zm3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0V6z"/>
-                    <path fill-rule="evenodd" d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1v1zM4.118 4L4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4H4.118zM2.5 3V2h11v1h-11z"/>
-                  </svg>
-                </button>
-              </form>
-            </div>
-          </td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
   </section>

@@ -263,6 +263,7 @@ def instruments_page(
             "success_message": "",
             "types": types,
             "vendors": vendors,
+            "instrument": None,
         },
     )
 
@@ -291,6 +292,7 @@ def instruments_favorites_page(
             "success_message": "",
             "types": types,
             "vendors": vendors,
+            "instrument": None,
         },
     )
 
@@ -330,6 +332,7 @@ def toggle_favorite(
             "success_message": "" if error_message else "Favorite updated.",
             "types": types,
             "vendors": vendors,
+            "instrument": None,
         },
     )
 
@@ -396,6 +399,8 @@ def instrument_form_submit(
 
     inst_id = _parse_int(instrument_id)
 
+    updated_instrument = None
+
     try:
         if inst_id:
             before = instrument_service.get_by_id(inst_id)
@@ -410,6 +415,7 @@ def instrument_form_submit(
                 is_active=is_active_bool,
             )
             updated = instrument_service.update(inst_id, data)
+            updated_instrument = updated
             changes = []
             if before.name != updated.name:
                 changes.append(f"name: '{before.name}' -> '{updated.name}'")
@@ -445,6 +451,7 @@ def instrument_form_submit(
                 color=color or None,
             )
             created = instrument_service.create(data)
+            updated_instrument = created
             audit_service.log_action(
                 actor="Unknown",
                 action_type="Create",
@@ -470,6 +477,7 @@ def instrument_form_submit(
             "success_message": success_message,
             "types": types,
             "vendors": vendors,
+            "instrument": updated_instrument,
         },
     )
 
@@ -501,7 +509,6 @@ def reservation_form_page(request: Request, db: Session = Depends(get_db)):
             "end_time": "",
             "purpose_id": "",
             "requested_by": "",
-            "can_be_overridden": "",
         },
     )
 
@@ -618,7 +625,6 @@ def reservation_form_submit(
             "end_time": end_time,
             "purpose_id": purpose_id,
             "requested_by": requested_by,
-            "can_be_overridden": "on" if can_override else "",
         },
         status_code=400 if (field_errors or error_message) else 200,
     )

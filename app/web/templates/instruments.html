@@ -145,6 +145,13 @@
         .reset-link:hover {
             text-decoration: underline;
         }
+        .instrument-form-card {
+            background: white;
+            padding: 24px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
         .table-container {
             background: white;
             border-radius: 4px;
@@ -267,6 +274,71 @@
         {% endif %}
         {% if error_message %}
         <div class="error-message">{{ error_message }}</div>
+        {% endif %}
+        {% if warning_message %}
+        <div class="warning-message">{{ warning_message }}</div>
+        {% endif %}
+
+        {% if instrument %}
+        <div class="instrument-form-card">
+            <h2>Edit Instrument: {{ instrument.name }}</h2>
+            <form method="post" action="/instruments/form">
+                <input type="hidden" name="instrument_id" value="{{ instrument.instrument_id }}">
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label for="edit-nickname">Nickname</label>
+                        <input type="text" id="edit-nickname" name="nickname" value="{{ instrument.nickname }}">
+                    </div>
+                    <div class="filter-group">
+                        <label for="edit-name">Name</label>
+                        <input type="text" id="edit-name" name="name" value="{{ instrument.name }}">
+                    </div>
+                    <div class="filter-group">
+                        <label for="edit-asset-id">Asset ID</label>
+                        <input type="text" id="edit-asset-id" name="asset_id" value="{{ instrument.asset_id }}">
+                    </div>
+                </div>
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label for="edit-location">Location</label>
+                        <select id="edit-location" name="location">
+                            {% for location in locations %}
+                            <option value="{{ location.id }}" {% if instrument.location_id == location.id %}selected{% endif %}>{{ location.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="edit-vendor">Vendor</label>
+                        <select id="edit-vendor" name="vendor">
+                            {% for vendor in vendors %}
+                            <option value="{{ vendor.id }}" {% if instrument.vendor_id == vendor.id %}selected{% endif %}>{{ vendor.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label for="edit-type">Type</label>
+                        <select id="edit-type" name="type">
+                            {% for type in types %}
+                            <option value="{{ type.id }}" {% if instrument.type_id == type.id %}selected{% endif %}>{{ type.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="filters-row">
+                    <div class="filter-group">
+                        <label for="edit-color">Color</label>
+                        <input type="text" id="edit-color" name="color" value="{{ instrument.color }}">
+                    </div>
+                    <div class="filter-group checkbox-group">
+                        <input type="checkbox" id="edit-is-active" name="is_active" {% if instrument.is_active %}checked{% endif %}>
+                        <label for="edit-is-active">Is Active</label>
+                    </div>
+                </div>
+                <div class="filter-actions">
+                    <button type="submit" class="create-btn">Save Instrument</button>
+                </div>
+            </form>
+        </div>
         {% endif %}
 
         <div class="filters">

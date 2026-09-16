@@ -277,10 +277,6 @@ button[type="button"]:hover {
   color: var(--un-error-default);
   font-size: 13px;
   margin-top: 4px;
-  display: none;
-}
-
-.error-message.visible {
   display: block;
 }
 
@@ -292,10 +288,7 @@ button[type="button"]:hover {
   color: #92400e;
   font-size: 13px;
   margin-top: 12px;
-  display: none;
-}
-
-.warning-message.visible {
+  margin-bottom: 12px;
   display: block;
 }
 
@@ -307,10 +300,6 @@ button[type="button"]:hover {
   color: #065f46;
   font-size: 13px;
   margin-top: 12px;
-  display: none;
-}
-
-.success-message.visible {
   display: block;
 }
 
@@ -441,6 +430,16 @@ footer {
     ℹ️ All times displayed in UTC
   </div>
 
+  {% if success_message %}
+  <div class="success-message">{{ success_message }}</div>
+  {% endif %}
+  {% if error_message %}
+  <div class="error-message">{{ error_message }}</div>
+  {% endif %}
+  {% if warning_message %}
+  <div class="warning-message">⚠️ {{ warning_message }}</div>
+  {% endif %}
+
   <div class="content-grid">
     <div class="card">
       <h2>Add New Location</h2>
@@ -448,13 +447,12 @@ footer {
         <div class="form-group">
           <label for="location-name">Location Name <span style="color: var(--un-error-default);">*</span></label>
           <input type="text" id="location-name" name="name" required maxlength="100" aria-describedby="name-error" value="{{ name }}">
-          {% if field_errors['name'] %}<div id="name-error" class="error-message visible">{{ field_errors['name'] }}</div>{% endif %}
+          {% if field_errors['name'] %}<div id="name-error" class="error-message">{{ field_errors['name'] }}</div>{% endif %}
         </div>
         <div class="form-actions">
           <button type="submit">Create Location</button>
           <button type="button">Clear</button>
         </div>
-        {% if success_message %}<div class="success-message visible">{{ success_message }}</div>{% endif %}
       </form>
     </div>
 
@@ -465,13 +463,11 @@ footer {
         <div class="form-group">
           <label for="edit-location-name">Location Name <span style="color: var(--un-error-default);">*</span></label>
           <input type="text" id="edit-location-name" name="name" required maxlength="100" aria-describedby="edit-name-error" placeholder="Select a location from the table below to edit" value="{{ name }}">
-          {% if error_message %}<div id="edit-name-error" class="error-message visible">{{ error_message }}</div>{% endif %}
         </div>
         <div class="form-actions">
           <button type="submit">Update Location</button>
           <button type="button">Cancel</button>
         </div>
-        {% if success_message %}<div class="success-message visible">{{ success_message }}</div>{% endif %}
       </form>
     </div>
   </div>
@@ -487,77 +483,35 @@ footer {
         </tr>
       </thead>
       <tbody>
+        {% for location in locations %}
         <tr>
-          <td>Lab 224</td>
-          <td class="status-active">Active ✓</td>
-          <td class="usage-count">3 instruments</td>
+          <td>{{ location.name }}</td>
           <td>
-<div class="action-icons">
-<a href="/admin/locations?edit=1" class="action-link" title="Edit location">Edit</a>
-<form method="post" action="/admin/locations/1/delete" style="display:inline;"><input type="hidden" name="id" value="1">
-<button type="submit" class="action-link" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;padding:0;" title="Deactivate location">Deactivate</button>
-</form>
-</div>
-</td>
-        </tr>
-        <tr>
-          <td>Lab 226</td>
-          <td class="status-active">Active ✓</td>
-          <td class="usage-count">2 instruments</td>
+            {% if location.is_active %}
+            <span class="status-active">Active ✓</span>
+            {% else %}
+            <span class="status-inactive">Inactive</span>
+            {% endif %}
+          </td>
+          <td class="usage-count">{{ location.usage_count if location.usage_count is defined else '' }}</td>
           <td>
-<div class="action-icons">
-<a href="/admin/locations?edit=2" class="action-link" title="Edit location">Edit</a>
-<form method="post" action="/admin/locations/2/delete" style="display:inline;"><input type="hidden" name="id" value="2">
-<button type="submit" class="action-link" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;padding:0;" title="Deactivate location">Deactivate</button>
-</form>
-</div>
-</td>
+            <div class="action-icons">
+              <a href="/admin/locations?edit={{ location.id }}" class="action-link" title="Edit location">Edit</a>
+              {% if location.is_active %}
+              <form method="post" action="/admin/locations/{{ location.id }}/delete" style="display:inline;"><input type="hidden" name="id" value="{{ location.id }}">
+              <button type="submit" class="action-link" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;padding:0;" title="Deactivate location">Deactivate</button>
+              </form>
+              {% else %}
+              <form method="post" action="/admin/locations/{{ location.id }}/reactivate" style="display:inline;"><input type="hidden" name="id" value="{{ location.id }}">
+              <button type="submit" class="action-link" style="background:none;border:none;color:var(--un-success-default);cursor:pointer;padding:0;" title="Reactivate location">Reactivate</button>
+              </form>
+              {% endif %}
+            </div>
+          </td>
         </tr>
-        <tr>
-          <td>Lab L128A</td>
-          <td class="status-active">Active ✓</td>
-          <td class="usage-count">1 instrument</td>
-          <td>
-<div class="action-icons">
-<a href="/admin/locations?edit=3" class="action-link" title="Edit location">Edit</a>
-<form method="post" action="/admin/locations/3/delete" style="display:inline;"><input type="hidden" name="id" value="3">
-<button type="submit" class="action-link" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;padding:0;" title="Deactivate location">Deactivate</button>
-</form>
-</div>
-</td>
-        </tr>
-        <tr>
-          <td>Lab L128B</td>
-          <td class="status-active">Active ✓</td>
-          <td class="usage-count">0 instruments</td>
-          <td>
-<div class="action-icons">
-<a href="/admin/locations?edit=4" class="action-link" title="Edit location">Edit</a>
-<form method="post" action="/admin/locations/4/delete" style="display:inline;"><input type="hidden" name="id" value="4">
-<button type="submit" class="action-link" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;padding:0;" title="Deactivate location">Deactivate</button>
-</form>
-</div>
-</td>
-        </tr>
-        <tr>
-          <td>Lab 101</td>
-          <td class="status-inactive">Inactive</td>
-          <td class="usage-count">5 instruments</td>
-          <td>
-<div class="action-icons">
-<a href="/admin/locations?edit=5" class="action-link" title="Edit location">Edit</a>
-<form method="post" action="/admin/locations/5/reactivate" style="display:inline;"><input type="hidden" name="id" value="5">
-<button type="submit" class="action-link" style="background:none;border:none;color:var(--un-success-default);cursor:pointer;padding:0;" title="Reactivate location">Reactivate</button>
-</form>
-</div>
-</td>
-        </tr>
+        {% endfor %}
       </tbody>
     </table>
-  </div>
-
-  <div class="warning-message">
-    ⚠️ Warning: This location is currently assigned to 3 active instruments. Deactivating it will prevent it from appearing in dropdowns for new instruments, but existing assignments will remain visible.
   </div>
 
 </main>
