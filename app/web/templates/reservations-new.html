@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Reservation - GRC Instrument Scheduler</title>
+  <style>
+    :root {
+      --un-background-01: #ffffff;
+      --un-background-02: #f8f9fa;
+      --un-background-inverse: #071D49;
+      --un-text-default: #071D49;
+      --un-text-muted: #6c757d;
+      --un-text-inverse: #ffffff;
+      --un-primary-default: #0066cc;
+      --un-primary-hover: #0052a3;
+      --un-primary-pressed: #003d7a;
+      --un-brand-500: #0066cc;
+      --un-brand-700: #003d7a;
+      --un-brand-900: #071D49;
+      --un-error-default: #dc3545;
+      --un-success-default: #28a745;
+      --un-warning-default: #ffc107;
+      --un-info-default: #17a2b8;
+      --un-border-color-container: #dee2e6;
+      --un-border-color-input: #ced4da;
+      --un-border-color-separator: #e9ecef;
+      --un-focus-color: #0066cc;
+      --un-focus-width: 3px;
+      --un-focus-offset: 2px;
+      --un-font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      --un-font-family-mono: "Courier New", Courier, monospace;
+      --un-font-weight-primary-regular: 400;
+      --un-font-weight-primary-bold: 600;
+      --un-font-weight-primary-light: 300;
+      --un-typography-title-h1-font-size: 28px;
+      --un-typography-title-h2-font-size: 24px;
+      --un-typography-title-h3-font-size: 20px;
+      --un-typography-body-font-size: 14px;
+      --un-typography-caption-font-size: 12px;
+      --un-radius-small: 4px;
+      --un-radius-medium: 6px;
+      --un-radius-large: 8px;
+      --un-space-card-body-horizontal: 20px;
+      --un-space-textinput-horizontal: 12px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: var(--un-font-family-primary);
+      font-size: var(--un-typography-body-font-size);
+      color: var(--un-text-default);
+      background: var(--un-background-01);
+    }
+
+    .unity-theme {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      background: var(--un-background-01);
+      border-bottom: 1px solid var(--un-border-color-separator);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    .logo-badge {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--un-brand-900);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--un-text-inverse);
+      font-weight: var(--un-font-weight-primary-bold);
+      font-size: 18px;
+    }
+
+    .app-title {
+      font-size: 18px;
+      font-weight: var(--un-font-weight-primary-bold);
+      color: var(--un-brand-900);
+      margin: 0;
+    }
+
+    nav {
+      display: flex;
+      gap: 32px;
+      margin-left: 48px;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--un-text-default);
+      font-weight: var(--un-font-weight-primary-regular);
+      padding-bottom: 12px;
+      border-bottom: 3px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    nav a:hover {
+      color: var(--un-primary-hover);
+    }
+
+    nav a:focus {
+      outline: var(--un-focus-width) solid var(--un-focus-color);
+      outline-offset: var(--un-focus-offset);
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .user-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--un-brand-500);
+      color: var(--un-text-inverse);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: var(--un-font-weight-primary-bold);
+    }
+
+    .user-name {
+      font-size: var(--un-typography-body-font-size);
+      color: var(--un-text-default);
+    }
+
+    main {
+      flex: 1;
+      padding: 32px 24px;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: var(--un-typography-title-h1-font-size);
+      font-weight: var(--un-font-weight-primary-bold);
+      color: var(--un-brand-900);
+      margin: 0 0 8px 0;
+    }
+
+    .page-subtitle {
+      font-size: var(--un-typography-body-font-size);
+      color: var(--un-text-muted);
+      margin: 0 0 24px 0;
+    }
+
+    .utc-notice {
+      background: var(--un-background-02);
+      border-left: 3px solid var(--un-info-default);
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      border-radius: var(--un-radius-small);
+      font-size: var(--un-typography-body-font-size);
+      color: var(--un-text-default);
+    }
+
+    .success-message {
+      background: #d4edda;
+      border-left: 3px solid var(--un-success-default);
+      padding: 16px;
+      margin-bottom: 24px;
+      border-radius: var(--un-radius-small);
+      color: #155724;
+    }
+
+    .success-message h2 {
+      margin: 0 0 8px 0;
+      font-size: var(--un-typography-title-h3-font-size);
+      font-weight: var(--un-font-weight-primary-bold);
+      color: #155724;
+    }
+
+    .success-message p {
+      margin: 4px 0;
+    }
+
+    .override-list {
+      margin: 12px 0 0 0;
+      padding-left: 20px;
+    }
+
+    .override-list li {
+      margin: 4px 0;
+    }
+
+    form {
+      background: var(--un-background-01);
+      border: 1px solid var(--un-border-color-container);
+      border-radius: var(--un-radius-medium);
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: var(--un-font-weight-primary-bold);
+      margin-bottom: 6px;
+      color: var(--un-text-default);
+    }
+
+    label .required {
+      color: var(--un-error-default);
+    }
+
+    input[type="text"],
+    input[type="datetime-local"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 8px var(--un-space-textinput-horizontal);
+      border: 1px solid var(--un-border-color-input);
+      border-radius: var(--un-radius-small);
+      font-family: var(--un-font-family-primary);
+      font-size: var(--un-typography-body-font-size);
+      color: var(--un-text-default);
+      background: var(--un-background-01);
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      outline: var(--un-focus-width) solid var(--un-focus-color);
+      outline-offset: var(--un-focus-offset);
+      border-color: var(--un-primary-default);
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .helper-text {
+      font-size: var(--un-typography-caption-font-size);
+      color: var(--un-text-muted);
+      margin-top: 4px;
+    }
+
+    .checkbox-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
+    }
+
+    .checkbox-group label {
+      margin: 0;
+      font-weight: var(--un-font-weight-primary-regular);
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid var(--un-border-color-separator);
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: var(--un-radius-small);
+      font-family: var(--un-font-family-primary);
+      font-size: var(--un-typography-body-font-size);
+      font-weight: var(--un-font-weight-primary-bold);
+      cursor: pointer;
+      background: var(--un-primary-default);
+      color: var(--un-text-inverse);
+      transition: background 0.2s;
+    }
+
+    button:hover {
+      background: var(--un-primary-hover);
+    }
+
+    button:active {
+      background: var(--un-primary-pressed);
+    }
+
+    button:focus {
+      outline: var(--un-focus-width) solid var(--un-focus-color);
+      outline-offset: var(--un-focus-offset);
+    }
+
+    button.un-btn--secondary {
+      background: var(--un-background-02);
+      color: var(--un-text-default);
+      border: 1px solid var(--un-border-color-input);
+    }
+
+    button.un-btn--secondary:hover {
+      background: #e9ecef;
+    }
+
+    footer {
+      background: var(--un-background-02);
+      border-top: 1px solid var(--un-border-color-separator);
+      padding: 16px 24px;
+      text-align: center;
+      font-size: var(--un-typography-caption-font-size);
+      color: var(--un-text-muted);
+    }
+  </style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+  <div class="unity-theme" data-mode="light" data-density="balanced">
+    <header>
+      <div class="header-left">
+        <div class="logo-badge">G</div>
+        <h1 class="app-title">GRC Instrument Scheduler</h1>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/instruments">Instruments</a>
+          <a href="#" style="opacity: 0.5; pointer-events: none;">Admin</a>
+          <a href="#" style="opacity: 0.5; pointer-events: none;">Events</a>
+        </nav>
+      </div>
+      <div class="header-right">
+        <span class="user-name">Hamelin, Alex</span>
+        <div class="user-avatar">HA</div>
+        <span style="font-size: 18px;">⏏</span>
+      </div>
+    </header>
+
+    <main>
+      <h1>Create Reservation</h1>
+      <p class="page-subtitle">Schedule a new instrument reservation with validation and conflict detection</p>
+
+      <div class="utc-notice">
+        <strong>⏰ All times displayed in UTC</strong> — Enter start and end times in UTC timezone. No local time conversion is provided.
+      </div>
+
+      <form method="post" action="/reservations/new">
+        <div class="form-group">
+          <label for="instrument">
+            Instrument <span class="required">*</span>
+          </label>
+          <select id="instrument" name="instrument_id" required>
+            <option value="">- Select an Instrument -</option>
+            <option value="1">NMR-400 (Varian) - AS-2401</option>
+            <option value="2">HPLC-1200 (Agilent) - AS-3102</option>
+            <option value="3">GC-MS-5977 (Agilent GC-MS) - AS-4205</option>
+            <option value="4">UV-Vis-8453 (UV Spectrophotometer) - AS-5018</option>
+            <option value="5">FTIR-Alpha (Bruker) - AS-6201</option>
+          </select>
+          <div class="helper-text">Only active, schedulable instruments are shown. Decommissioned and under-maintenance instruments are excluded.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="start_time">
+            Start Time (UTC) <span class="required">*</span>
+          </label>
+          <input 
+            type="datetime-local" 
+            id="start_time" 
+            name="start_time" 
+            step="1800"
+            required value="{{ start_time }}" />
+          <div class="helper-text">Must fall on a 30-minute boundary (e.g., 09:00, 09:30, 10:00)</div>
+        </div>
+
+        <div class="form-group">
+          <label for="end_time">
+            End Time (UTC) <span class="required">*</span>
+          </label>
+          <input 
+            type="datetime-local" 
+            id="end_time" 
+            name="end_time" 
+            step="1800"
+            required value="{{ end_time }}" />
+          <div class="helper-text">Must be after start time and fall on a 30-minute boundary</div>
+        </div>
+
+        <div class="form-group">
+          <label for="purpose">
+            Reservation Purpose <span class="required">*</span>
+          </label>
+          <select id="purpose" name="purpose_id" required>
+            <option value="">- Select a Purpose -</option>
+            <option value="1">Research</option>
+            <option value="2">Quality Control</option>
+            <option value="3">Method Development</option>
+            <option value="4">Training</option>
+            <option value="5">Maintenance</option>
+            <option value="6">Validation</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="requested_by">
+            Requested by
+          </label>
+          <input 
+            type="text" 
+            id="requested_by" 
+            name="requested_by" 
+            maxlength="120"
+            placeholder="Enter your name or identifier" value="{{ requested_by }}" />
+          <div class="helper-text">Optional. Used for audit log tracking. Defaults to 'Unknown' if left blank. Max 120 characters.</div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <input 
+            type="checkbox" 
+            id="can_be_overridden" 
+            name="can_be_overridden" 
+            value="true"
+          />
+          <label for="can_be_overridden">
+            This reservation can be overridden by future bookings
+          </label>
+        </div>
+        <div class="helper-text" style="margin-left: 28px; margin-top: -12px;">
+          If checked, another user may create a conflicting reservation that replaces this one. If unchecked, this reservation blocks the time slot.
+        </div>
+
+        <div class="form-actions">
+          <button type="submit">Create Reservation</button>
+          <button type="button" class="un-btn--secondary">Cancel</button>
+        </div>
+      </form>
+    </main>
+
+    <footer>
+      <p>Copyright © 2026 AbbVie Inc.</p>
+    </footer>
+  </div>
+</body>
+</html>
