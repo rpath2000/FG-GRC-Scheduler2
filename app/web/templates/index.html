@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Scheduler — GRC Instrument Scheduler</title>
+<style>
+:root {
+  --un-background-01: #ffffff;
+  --un-background-02: #f8f9fa;
+  --un-background-inverse: #071D49;
+  --un-text-default: #071D49;
+  --un-text-muted: #6c757d;
+  --un-text-inverse: #ffffff;
+  --un-primary-default: #0066cc;
+  --un-primary-hover: #0052a3;
+  --un-primary-pressed: #003d7a;
+  --un-brand-500: #0066cc;
+  --un-brand-700: #003d7a;
+  --un-brand-900: #071D49;
+  --un-border-color-container: #dee2e6;
+  --un-border-color-input: #ced4da;
+  --un-border-color-separator: #e9ecef;
+  --un-focus-color: #0066cc;
+  --un-focus-width: 3px;
+  --un-focus-offset: 2px;
+  --un-font-family-primary: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --un-font-weight-primary-regular: 400;
+  --un-font-weight-primary-bold: 600;
+  --un-font-weight-primary-light: 300;
+  --un-radius-small: 4px;
+  --un-radius-medium: 6px;
+  --un-radius-large: 8px;
+  --un-radius-full: 9999px;
+  --un-space-card-body-horizontal: 16px;
+  --un-space-textinput-horizontal: 12px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--un-font-family-primary);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--un-text-default);
+  background: var(--un-background-01);
+}
+
+button, input, select, textarea {
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+button {
+  background: var(--un-primary-default);
+  color: var(--un-text-inverse);
+  border: none;
+  border-radius: var(--un-radius-small);
+  padding: 8px 16px;
+  font-weight: var(--un-font-weight-primary-bold);
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--un-primary-hover);
+}
+
+button:active {
+  background: var(--un-primary-pressed);
+}
+
+button:disabled {
+  background: #6c757d;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+button.un-btn--secondary {
+  background: transparent;
+  color: var(--un-primary-default);
+  border: 1px solid var(--un-border-color-input);
+}
+
+button.un-btn--secondary:hover {
+  background: var(--un-background-02);
+}
+
+input, select, textarea {
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+  padding: 6px var(--un-space-textinput-horizontal);
+  background: var(--un-background-01);
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: var(--un-focus-width) solid var(--un-focus-color);
+  outline-offset: var(--un-focus-offset);
+}
+
+a {
+  color: var(--un-primary-default);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+a.disabled {
+  color: #6c757d;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+.unity-theme {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app-header {
+  background: var(--un-background-01);
+  border-bottom: 1px solid var(--un-border-color-separator);
+  padding: 12px 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.app-logo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.logo-badge {
+  width: 40px;
+  height: 40px;
+  background: var(--un-brand-900);
+  border-radius: var(--un-radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--un-text-inverse);
+  font-weight: var(--un-font-weight-primary-bold);
+  font-size: 18px;
+}
+
+.app-title {
+  font-size: 18px;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-brand-900);
+}
+
+.app-nav {
+  display: flex;
+  gap: 32px;
+  list-style: none;
+}
+
+.app-nav a {
+  color: var(--un-text-default);
+  font-weight: var(--un-font-weight-primary-regular);
+  padding-bottom: 4px;
+  border-bottom: 3px solid transparent;
+  display: inline-block;
+}
+
+.app-nav a.active {
+  color: var(--un-primary-default);
+  border-bottom-color: var(--un-primary-default);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+.app-nav a.disabled {
+  color: #6c757d;
+  pointer-events: none;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--un-text-muted);
+  pointer-events: none;
+}
+
+.user-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--un-radius-full);
+  background: var(--un-primary-default);
+  color: var(--un-text-inverse);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+.main-content {
+  flex: 1;
+  padding: 24px;
+}
+
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-brand-900);
+}
+
+.page-actions {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.scheduler-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: var(--un-background-02);
+  border-radius: var(--un-radius-small);
+}
+
+.nav-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.nav-button {
+  width: 32px;
+  height: 32px;
+  background: var(--un-background-01);
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--un-text-default);
+  cursor: pointer;
+  font-size: 16px;
+  padding: 0;
+}
+
+.nav-button:hover {
+  background: var(--un-background-02);
+}
+
+.date-picker {
+  padding: 6px 12px;
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+}
+
+.range-label {
+  font-weight: var(--un-font-weight-primary-bold);
+  color: var(--un-text-default);
+  min-width: 150px;
+  text-align: center;
+}
+
+.view-toggle {
+  display: flex;
+  border: 1px solid var(--un-border-color-input);
+  border-radius: var(--un-radius-small);
+  overflow: hidden;
+}
+
+.view-toggle button {
+  background: var(--un-background-01);
+  color: var(--un-text-default);
+  border: none;
+  border-radius: 0;
+  padding: 6px 16px;
+  font-weight: var(--un-font-weight-primary-regular);
+  border-right: 1px solid var(--un-border-color-input);
+}
+
+.view-toggle button:last-child {
+  border-right: none;
+}
+
+.view-toggle button.active {
+  background: var(--un-brand-900);
+  color: var(--un-text-inverse);
+  font-weight: var(--un-font-weight-primary-bold);
+}
+
+.view-toggle button:disabled {
+  background: #e9ecef;
+  color: #adb5bd;
+  cursor: not-allowed;
+}
+
+.utc-notice {
+  font-size: 12px;
+  color: var(--un-text-muted);
+  font-style: italic;
+  margin-left: auto;
+}
+
+.timeline-container {
+  border: 1px solid var(--un-border-color-container);
+  border-radius: var(--un-radius-small);
+  background: var(--un-background-01);
+  overflow: hidden;
+}
+
+.app-footer {
+  background: var(--un-background-02);
+  border-top: 1px solid var(--un-border-color-separator);
+  padding: 16px 24px;
+  text-align: center;
+  color: var(--un-text-muted);
+  font-size: 12px;
+}
+
+#timeline {
+  height: 600px;
+  width: 100%;
+}
+</style>
+
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+<div class="unity-theme" data-mode="light" data-density="balanced">
+  <header class="app-header">
+    <div class="header-left">
+      <div class="app-logo">
+        <div class="logo-badge">G</div>
+        <span class="app-title">GRC Instrument Scheduler</span>
+      </div>
+      <nav>
+        <ul class="app-nav">
+          <li><a href="/" class="active">Scheduler</a></li>
+          <li><a href="/instruments">Instruments</a></li>
+          <li><a href="#" class="disabled">Events</a></li>
+        </ul>
+      </nav>
+    </div>
+    <div class="header-right">
+      <div class="user-avatar">AH</div>
+      <span>Hamelin, Alex</span>
+      <span>▼</span>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1 class="page-title">Scheduler</h1>
+      <div class="page-actions">
+        <a href="#" class="disabled">Show Filters</a>
+        <a href="#" class="disabled">Export</a>
+      </div>
+    </div>
+
+    <div class="scheduler-controls">
+      <div class="nav-buttons">
+        <button type="button" class="nav-button" id="btn-prev" aria-label="Previous">‹</button>
+        <button type="button" class="nav-button" id="btn-next" aria-label="Next">›</button>
+      </div>
+      <input type="date" id="date-picker" class="date-picker" aria-label="Select date">
+      <div class="range-label" id="range-label">{{ range_label }}</div>
+      <div class="view-toggle" role="group" aria-label="View toggle">
+        <button type="button" id="btn-day">Day</button>
+        <button type="button" id="btn-week" class="active">Week</button>
+        <button type="button" disabled>month</button>
+        <button type="button" disabled>year</button>
+      </div>
+      <div class="utc-notice">All times displayed in UTC</div>
+    </div>
+
+    <div class="timeline-container">
+      <div id="timeline"></div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    Copyright © 2026 AbbVie Inc.
+  </footer>
+</div>
+
+
+
+</body>
+</html>

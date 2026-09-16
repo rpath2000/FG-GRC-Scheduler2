@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instruments - GRC Instrument Scheduler</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 14px;
+            color: #333;
+            background: #f5f5f5;
+        }
+        .header {
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            padding: 0 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            height: 64px;
+        }
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 600;
+        }
+        .logo-icon {
+            width: 40px;
+            height: 40px;
+            background: #1a237e;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+        }
+        .nav {
+            display: flex;
+            gap: 24px;
+        }
+        .nav a {
+            text-decoration: none;
+            color: #666;
+            padding: 20px 0;
+            position: relative;
+        }
+        .nav a.active {
+            color: #1976d2;
+            border-bottom: 3px solid #1976d2;
+        }
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .main-content {
+            padding: 32px 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+        }
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 400;
+        }
+        .create-btn {
+            background: #1976d2;
+            color: white;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+        .create-btn:hover {
+            background: #1565c0;
+        }
+        .filters {
+            background: white;
+            padding: 24px;
+            border-radius: 4px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .filters-row {
+            display: flex;
+            gap: 16px;
+            align-items: flex-end;
+        }
+        .filter-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 500;
+            color: #666;
+        }
+        .filter-group input,
+        .filter-group select {
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+            width: 100%;
+        }
+        .filter-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .reset-link {
+            color: #1976d2;
+            text-decoration: none;
+            font-size: 14px;
+            white-space: nowrap;
+        }
+        .reset-link:hover {
+            text-decoration: underline;
+        }
+        .table-container {
+            background: white;
+            border-radius: 4px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        thead {
+            background: #f5f5f5;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 500;
+            font-size: 12px;
+            color: #666;
+            text-transform: uppercase;
+        }
+        th.sortable {
+            cursor: pointer;
+        }
+        th.sortable:after {
+            content: ' ⇅';
+            color: #ccc;
+        }
+        td {
+            padding: 16px;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        tr:hover {
+            background: #fafafa;
+        }
+        .sort-link { color: inherit; text-decoration: none; }
+        .sort-glyph { color: #999; font-size: 11px; }
+        .sr-only {
+            position: absolute;
+            width: 1px; height: 1px;
+            padding: 0; margin: -1px;
+            overflow: hidden;
+            clip: rect(0,0,0,0);
+            white-space: nowrap; border: 0;
+        }
+        .icon-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #1976d2;
+            padding: 4px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .star-icon {
+            font-size: 18px;
+            color: #ccc;
+        }
+        .star-icon.active {
+            color: #1976d2;
+        }
+        .edit-icon {
+            font-size: 16px;
+        }
+        .name-link {
+            color: #1976d2;
+            text-decoration: none;
+            font-weight: 500;
+        }
+        .name-link:hover {
+            text-decoration: underline;
+        }
+        .color-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .color-swatch {
+            width: 24px;
+            height: 12px;
+            border-radius: 6px;
+            display: inline-block;
+        }
+        .checkmark {
+            color: #4caf50;
+            font-size: 18px;
+        }
+    </style>
+  {% include "_shared_styles.html" %}
+</head>
+<body>
+    <header class="header">
+        <div class="header-left">
+            <div class="logo">
+                <div class="logo-icon">◉</div>
+                <span>GRC Instrument Scheduler</span>
+            </div>
+            <nav class="nav">
+                <a href="/">Home</a>
+                <a href="/instruments" class="active">Instruments</a>
+                <a href="/admin/locations">Admin ▾</a>
+                <a href="#" class="disabled" aria-disabled="true">Events</a>
+            </nav>
+        </div>
+        <div class="user-info">
+            <span>👤 Hamelin, Alex ⚙</span>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="page-header">
+            <h1>Instruments</h1>
+            <a href="/instruments/form" class="create-btn">Create a new Instrument</a>
+        </div>
+
+        {% if success_message %}
+        <div class="success-message">{{ success_message }}</div>
+        {% endif %}
+        {% if error_message %}
+        <div class="error-message">{{ error_message }}</div>
+        {% endif %}
+
+        <div class="filters">
+            <form method="get" action="/instruments" class="filters-row">
+                <div class="filter-group">
+                    <label for="nickname">Nickname</label>
+                    <input type="text" id="nickname" name="nickname" value="{{ filters.nickname if filters else '' }}">
+                </div>
+                <div class="filter-group">
+                    <label for="location">Location</label>
+                    <select id="location" name="location">
+                        <option>- Select -</option>
+                        {% for location in locations %}
+                        <option value="{{ location.id }}" {% if filters and filters.location == location.id %}selected{% endif %}>{{ location.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="vendor">Vendor</label>
+                    <select id="vendor" name="vendor">
+                        <option>- Select -</option>
+                        {% for vendor in vendors %}
+                        <option value="{{ vendor.id }}" {% if filters and filters.vendor == vendor.id %}selected{% endif %}>{{ vendor.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="type">Type</label>
+                    <select id="type" name="type">
+                        <option>- Select -</option>
+                        {% for type in types %}
+                        <option value="{{ type.id }}" {% if filters and filters.type == type.id %}selected{% endif %}>{{ type.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="filter-actions">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="favorites" name="favorites" {% if filters and filters.favorites %}checked{% endif %}>
+                        <label for="favorites">Favorites only</label>
+                    </div>
+                    <button type="submit" class="filter-apply">Apply filters</button>
+                    <a href="/instruments" class="reset-link">Reset filters</a>
+                </div>
+            </form>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th style="width: 40px;"></th>
+                        <th style="width: 40px;"></th>
+                        <th class="sortable"><a href="/instruments?sort=name&amp;dir=asc" class="sort-link">Name <span class="sort-glyph" aria-hidden="true">⇅</span></a></th>
+                        <th class="sortable"><a href="/instruments?sort=nickname&amp;dir=asc" class="sort-link">Nickname <span class="sort-glyph" aria-hidden="true">⇅</span></a></th>
+                        <th class="sortable"><a href="/instruments?sort=asset_id&amp;dir=asc" class="sort-link">Asset ID <span class="sort-glyph" aria-hidden="true">⇅</span></a></th>
+                        <th class="sortable"><a href="/instruments?sort=location&amp;dir=asc" class="sort-link">Location <span class="sort-glyph" aria-hidden="true">⇅</span></a></th>
+                        <th class="sortable"><a href="/instruments?sort=vendor&amp;dir=asc" class="sort-link">Vendor <span class="sort-glyph" aria-hidden="true">⇅</span></a></th>
+                        <th class="sortable"><a href="/instruments?sort=type&amp;dir=asc" class="sort-link">Type <span class="sort-glyph" aria-hidden="true">⇅</span></a></th>
+                        <th>Color</th>
+                        <th>Is Active</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for instrument in instruments %}
+                    <tr>
+                        <td><form method="post" action="/instruments/favorites"><input type="hidden" name="instrument_id" value="{{ instrument.id }}"><button type="submit" class="icon-btn" aria-label="Toggle Favorite"><span class="sr-only">Toggle Favorite</span><span class="star-icon {% if instrument.is_favorite %}active{% endif %}" aria-hidden="true">{% if instrument.is_favorite %}★{% else %}☆{% endif %}</span></button></form></td>
+                        <td><a href="/instruments/form?instrument_id={{ instrument.id }}" class="icon-btn" aria-label="Edit instrument"><span class="edit-icon">✎</span></a></td>
+                        <td><a href="/instruments/form?instrument_id={{ instrument.id }}" class="name-link">{{ instrument.name }}</a></td>
+                        <td>{{ instrument.nickname }}</td>
+                        <td>{{ instrument.asset_id }}</td>
+                        <td>{{ instrument.location }}</td>
+                        <td>{{ instrument.vendor }}</td>
+                        <td>{{ instrument.type }}</td>
+                        <td>{% if instrument.color_name %}<div class="color-badge">{{ instrument.color_name }} <span class="color-swatch" style="background: {{ instrument.color_hex }};"></span></div>{% endif %}</td>
+                        <td>{% if instrument.is_active %}<span class="checkmark">✓</span>{% endif %}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+    <footer>
+      <p>Copyright © 2026 AbbVie Inc.</p>
+    </footer>
+</body>
+</html>
