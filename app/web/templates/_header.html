@@ -1,0 +1,74 @@
+{#
+  The one page header, included by every page.
+
+  Ten templates each built their own, and they disagreed on everything a person can see:
+
+    logo glyph     GRC (x3), G (x5), ◉, ⟲          -- five different marks
+    brand element  <span> (x8), <h1> (x2)          -- the <h1> inherited the browser's 2em
+    brand size     18px, 1.1rem, 1.125rem, 1.25rem, 20px
+    right side     "AH Hamelin, Alex ⎋" / "↓" / "▼" / "↗" / "👤 … ⚙" / "Hamelin, Alex HA ⏏"
+
+  The `<h1>` is what made the Reservations page's title look oversized: `.app-title` asks for 18px, no
+  stylesheet defines `h1`, so the BROWSER DEFAULT of 2em (~32px) won. Every other page used a span and
+  looked right, which is why it read as a one-page bug rather than a shell that was never shared.
+
+  Everything here follows the approved screen transcription: a circular dark-navy badge about 40px
+  across holding a white ring-and-dot glyph, "GRC Instrument Scheduler" bold in #071D49 at about 24px,
+  then the nav, then -- at the far right -- a circular grey avatar, the name in dark grey, and a blue
+  sign-out arrow.
+
+  The user block is DISPLAY ONLY. This application has no authentication, so the name is a constant and
+  the sign-out glyph is inert and marked `aria-hidden`: it must not imply a session.
+#}
+<header class="site-header">
+  <div class="site-header-left">
+    <div class="site-logo" aria-hidden="true">◉</div>
+    <span class="site-brand">GRC Instrument Scheduler</span>
+    {% include "_nav.html" %}
+  </div>
+  <div class="site-header-right">
+    <div class="site-avatar" aria-hidden="true">AH</div>
+    <span class="site-user">Hamelin, Alex</span>
+    <span class="site-signout" aria-hidden="true" title="Display only — this application has no sign-in">&#8599;</span>
+  </div>
+</header>
+<style>
+  .site-header {
+    background: #fff;
+    border-bottom: 1px solid #E5E7EB;
+    padding: 0 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    flex-wrap: wrap;
+  }
+  .site-header-left { display: flex; align-items: center; gap: 28px; flex-wrap: wrap; }
+  .site-logo {
+    width: 40px; height: 40px; flex: 0 0 40px;
+    border-radius: 50%;
+    background: #071D49;
+    color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; line-height: 1;
+  }
+  /* A span, and an explicit size and weight, so no browser default and no page-local rule can change
+     the brand between pages. */
+  .site-brand {
+    font-size: 24px;
+    font-weight: 700;
+    color: #071D49;
+    white-space: nowrap;
+  }
+  .site-header-right { display: flex; align-items: center; gap: 10px; }
+  .site-avatar {
+    width: 32px; height: 32px; flex: 0 0 32px;
+    border-radius: 50%;
+    background: #E5E7EB;
+    color: #4B5563;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 600;
+  }
+  .site-user { color: #4B5563; font-size: 14px; white-space: nowrap; }
+  .site-signout { color: #1B6BE0; font-size: 16px; cursor: default; }
+</style>
