@@ -156,8 +156,13 @@ Looking at this template, I need to:
 
         .controls-row {
             display: flex;
+            /* WRAP, for the same reason index.html does: a no-wrap row with `space-between` pushes the
+               Day/Week/month/year toggle off the edge on a narrower viewport, and the page looks like it
+               stops after the first day column. */
+            flex-wrap: wrap;
             justify-content: space-between;
             align-items: center;
+            gap: 12px;
             margin-bottom: 24px;
         }
 
@@ -215,6 +220,7 @@ Looking at this template, I need to:
 
         .view-controls {
             display: flex;
+            flex-shrink: 0;
             border: 1px solid #dadce0;
             border-radius: 4px;
             overflow: hidden;
@@ -372,12 +378,7 @@ Looking at this template, I need to:
                 <div class="logo-icon">⟲</div>
                 <span>GRC Instrument Scheduler</span>
             </div>
-            <nav class="nav">
-                <a href="/" class="active">Home</a>
-                <a href="/instruments">Instruments</a>
-                <a href="/admin/locations">Admin ▾</a>
-                <a href="#" class="disabled" aria-disabled="true">Events</a>
-            </nav>
+            {% include "_nav.html" %}
         </div>
         <div class="header-right">
             <div class="user-info">
