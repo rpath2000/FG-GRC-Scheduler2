@@ -156,7 +156,7 @@ Looking at this template, I need to:
 
         .controls-row {
             display: flex;
-            /* WRAP, for the same reason index.html does: a no-wrap row with `space-between` pushes the
+            /* WRAP. A no-wrap row with `space-between` pushes the
                Day/Week/month/year toggle off the edge on a narrower viewport, and the page looks like it
                stops after the first day column. */
             flex-wrap: wrap;
@@ -424,42 +424,117 @@ Looking at this template, I need to:
             </form>
 
             <div class="scheduler-grid">
-                <div class="grid-wrapper">
-                    <div class="grid-header">
-                        <div class="grid-header-cell">Resources</div>
-                        {% for day in days %}
-                        <div class="grid-header-cell">
-                            <div class="day-header">
-                                <div class="day-name">{{ day.label }}</div>
-                            </div>
-                        </div>
-                        {% for slot in day.extra_slots %}
-                        <div class="grid-header-cell"></div>
-                        {% endfor %}
-                        {% endfor %}
-                    </div>
+          {# The approved Scheduler is a RESOURCE TIMELINE: instruments as rows, time along the
+             horizontal axis, reservations as blocks tinted by the instrument's colour. It is rendered by
+             vis-timeline (Apache-2.0), the one free library that draws this shape, and this page is the
+             ONE deliberate exception to the application's no-JavaScript rule — every other page is
+             server-rendered and submits with a plain form.
 
-                    <div class="time-headers">
-                        <div class="time-header"></div>
-                        {% for time_label in time_headers %}
-                        <div class="time-header">{{ time_label }}</div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="grid-body">
-                        {% for resource in resources %}
-                        <div class="grid-row">
-                            <div class="resource-cell">{{ resource.name }}</div>
-                            {% for slot in resource.slots %}
-                            <div class="time-cell"></div>
-                            {% endfor %}
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
+             What was here before was a hand-built CSS grid whose markup iterated `resource.slots` and
+             `day.extra_slots`. The handler never built either key, so the grid rendered EMPTY on a page
+             that answered 200. The data it DOES build — `resources`, each with `label`, `color` and its
+             own `reservations` carrying ISO start/end — is exactly what vis-timeline consumes, so this
+             reads the same context and needs no handler change. #}
+          <div id="timeline"></div>
+          {% if not resources %}
+          <p class="empty-state">No schedulable instruments yet. Add one from the Instruments page.</p>
+          {% else %}
+          {# A SERVER-RENDERED fallback, and the reason it exists: vis-timeline loads from a CDN, so a
+             blocked proxy or an offline browser would otherwise leave a blank panel where the schedule
+             should be. The script below removes this list once it has drawn the timeline, so a working
+             browser sees the timeline and a blocked one still sees every reservation. Nothing here
+             depends on JavaScript. #}
+          <div id="timeline-fallback" class="timeline-fallback">
+            {% for resource in resources %}
+            <div class="fallback-row">
+              <div class="fallback-label">{{ resource.label }}</div>
+              {% if resource.reservations %}
+              <ul class="fallback-items">
+                {% for item in resource.reservations %}
+                <li><span class="fallback-swatch" style="background-color: {{ item.color }};"></span>
+                  {{ item.start_datetime }} &ndash; {{ item.end_datetime }} UTC
+                  &middot; {{ item.purpose_name or 'Reserved' }}
+                  &middot; {{ item.requested_by or 'Unknown' }}</li>
+                {% endfor %}
+              </ul>
+              {% else %}
+              <p class="fallback-empty">No reservations in this range.</p>
+              {% endif %}
             </div>
+            {% endfor %}
+          </div>
+          {% endif %}
         </div>
-    </main>
+        {# The server has already computed every value; the script only draws it. Emitted as JSON via
+           `tojson` so quoting and escaping are Jinja's job rather than string concatenation's. #}
+        <script type="application/json" id="timeline-data">
+          {{ timeline_items | tojson }}
+        </script>
+        <script type="application/json" id="timeline-labels">
+          {{ timeline_groups | tojson }}
+        </script>
+        <script type="application/json" id="timeline-window">
+          {"start": {{ (days[0] ~ 'T00:00:00Z') | tojson }},
+           "end": {{ ((days[-1] if days else days[0]) ~ 'T23:59:59Z') | tojson }},
+           "view": {{ current_view | tojson }}}
+        </script>
+        <style>
+          .timeline-fallback { display: flex; flex-direction: column; gap: 10px; }
+          .fallback-row { border-bottom: 1px solid #E5E7EB; padding: 8px 0; }
+          .fallback-label { font-weight: 600; color: #071D49; }
+          .fallback-items { margin: 4px 0 0 0; padding-left: 18px; font-size: 14px; }
+          .fallback-swatch { display: inline-block; width: 10px; height: 10px; border-radius: 2px; vertical-align: middle; }
+          .fallback-empty { margin: 4px 0 0; font-size: 13px; color: #6B7280; }
+        </style>
+        <link rel="stylesheet" href="https://unpkg.com/vis-timeline@7.7.3/dist/vis-timeline-graph2d.min.css">
+        <script src="https://unpkg.com/vis-timeline@7.7.3/dist/vis-timeline-graph2d.min.js"></script>
+        <script>
+          (function () {
+            var host = document.getElementById('timeline');
+            if (!host || typeof vis === 'undefined') { return; }   // offline or blocked CDN: leave the page usable
+            function read(id, fallback) {
+              var el = document.getElementById(id);
+              if (!el) { return fallback; }
+              try { return JSON.parse(el.textContent); } catch (e) { return fallback; }
+            }
+            var labels = read('timeline-labels', []);
+            var items = read('timeline-data', []);
+            var win = read('timeline-window', {});
+            if (!labels.length) { return; }   // the empty-state paragraph above says why
+            var timeline = new vis.Timeline(
+              host,
+              new vis.DataSet(items),
+              new vis.DataSet(labels),
+              {
+                stack: false,
+                orientation: 'top',
+                zoomable: false,
+                moveable: true,
+                selectable: false,
+                editable: false,
+                margin: { item: 6, axis: 8 },
+                groupOrder: 'content',
+                // The requirement is UTC everywhere, labelled — no per-user timezone, so the axis is
+                // pinned to UTC rather than the browser's local offset.
+                moment: function (date) { return vis.moment(date).utc(); },
+                // Day view shows hours; week view shows days with a three-hourly minor axis, which is
+                // the two-level axis the approved screen carries.
+                timeAxis: win.view === 'day' ? { scale: 'hour', step: 1 } : { scale: 'hour', step: 3 },
+                start: win.start,
+                end: win.end,
+                min: win.start,
+                max: win.end,
+              }
+            );
+            var fallback = document.getElementById('timeline-fallback');
+            if (fallback) { fallback.remove(); }   // the timeline drew, so the plain list is redundant
+            timeline.on('itemover', function (props) {
+              var found = items.filter(function (i) { return String(i.id) === String(props.item); })[0];
+              if (found) { host.title = found.title; }
+            });
+          }());
+        </script>
+        </main>
 
     <footer class="footer">
         <div class="abbvie-logo">

@@ -193,13 +193,40 @@ def scheduler_page(
         else:
             date_range_label = f"{_fmt(range_start, '%b %-d')} \u2013 {_fmt(end_display, '%b %-d, %Y')}"
     else:
-        date_range_label = range_start.strftime("%b %-d, %Y")
+        date_range_label = _fmt(range_start, "%b %-d, %Y")
+
+    # Built HERE, as real lists, so `tojson` in the template cannot emit malformed JSON. The first
+    # attempt assembled these by hand in Jinja with `{% if not loop.last %},{% endif %}` across a
+    # NESTED loop, and a resource with no reservations left a trailing comma -- invalid JSON, a silent
+    # parse failure in the browser, and a blank timeline on a page that answered 200. The shapes are
+    # vis-timeline's: `groups` are the instrument rows, `items` the reservation blocks.
+    timeline_groups = [
+        {"id": r["instrument_id"], "content": r["label"]} for r in resources
+    ]
+    timeline_items = [
+        {
+            "id": item["reservation_id"],
+            "group": item["instrument_id"],
+            "start": item["start_datetime"],
+            "end": item["end_datetime"],
+            "content": item["purpose_name"] or "Reserved",
+            "title": f"{item['purpose_name'] or 'Reserved'} — {item['requested_by'] or 'Unknown'}",
+            "style": (
+                f"background-color: {item['color']}; "
+                f"border-color: {item['color']}; color: #fff;"
+            ),
+        }
+        for r in resources
+        for item in r["reservations"]
+    ]
 
     return templates.TemplateResponse(
         request,
         "scheduler.html",
         {
             "current_view": view,
+            "timeline_groups": timeline_groups,
+            "timeline_items": timeline_items,
             "date_range_label": date_range_label,
             "days": days,
             "error_message": error_message,
@@ -213,15 +240,21 @@ def scheduler_page(
 
 
 @router.get("/")
-def index_page(request: Request, db: Session = Depends(get_db)):
-    today = datetime.now(timezone.utc).date()
-    range_start = today
-    range_end = range_start + timedelta(days=6)
-    if range_start.month == range_end.month:
-        range_label = f"{_fmt(range_start, '%b %-d')} \u2013 {_fmt(range_end, '%-d, %Y')}"
-    else:
-        range_label = f"{_fmt(range_start, '%b %-d')} \u2013 {_fmt(range_end, '%b %-d, %Y')}"
-    return templates.TemplateResponse(request, "index.html", {"range_label": range_label})
+def index_page(
+    request: Request,
+    date: Optional[str] = None,
+    view: str = "week",
+    db: Session = Depends(get_db),
+):
+    """Home IS the Scheduler, so serve the same timeline rather than a second, emptier copy.
+
+    This used to render `index.html` with one key -- a date caption -- and no instruments, no
+    reservations and no grid. `/` is the page a person lands on, and the approved design names Home and
+    Scheduler as the same screen, so two templates for it guaranteed one of them would be the stale one.
+    Delegating means there is a single Scheduler page and the date/view controls work identically from
+    either URL.
+    """
+    return scheduler_page(request=request, date=date, view=view, db=db)
 
 
 # ---------------------------------------------------------------------------
