@@ -380,22 +380,7 @@ footer {
 <body>
 <div class="unity-theme" data-mode="light" data-density="balanced">
 
-<header>
-  <div class="header-content">
-    <div class="header-left">
-      <div class="logo-section">
-        <div class="logo-badge">G</div>
-        <h2 class="site-title">GRC Instrument Scheduler</h2>
-      </div>
-      {% include "_nav.html" %}
-    </div>
-    <div class="header-right">
-      <div class="user-avatar">AH</div>
-      <span>Hamelin, Alex</span>
-      <span>↗</span>
-    </div>
-  </div>
-</header>
+{% include "_header.html" %}
 
 {% if success_message %}<div class="success-message">{{ success_message }}</div>{% endif %}
 {% if error_message %}<div class="error-message">{{ error_message }}</div>{% endif %}

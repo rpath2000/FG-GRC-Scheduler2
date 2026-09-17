@@ -126,6 +126,15 @@
             gap: 16px;
         }
 
+                /* Show Filters and Export are rendered so the header matches the approved screen and are
+           DISABLED because both are out of scope. Without a disabled style they looked like ordinary
+           blue links, so people clicked them and nothing happened -- worse than not offering them. */
+        .btn-link[disabled] {
+            color: #9AA3AF;
+            cursor: not-allowed;
+            text-decoration: none;
+        }
+        .btn-link[disabled]:hover { text-decoration: none; }
         .btn-link {
             background: none;
             border: none;
@@ -365,22 +374,7 @@
   {% include "_shared_styles.html" %}
 </head>
 <body>
-    <header class="header">
-        <div class="header-left">
-            <div class="logo">
-                <div class="logo-icon">⟲</div>
-                <span>GRC Instrument Scheduler</span>
-            </div>
-            {% include "_nav.html" %}
-        </div>
-        <div class="header-right">
-            <div class="user-info">
-                <span class="user-icon">👤</span>
-                <span>{{ user.name }}</span>
-                <span>🔽</span>
-            </div>
-        </div>
-    </header>
+    {% include "_header.html" %}
 
     <main class="main-content">
         {% if success_message %}
@@ -392,8 +386,10 @@
         <div class="page-header">
             <h1 class="page-title">Scheduler</h1>
             <div class="page-actions">
-                <button type="button" class="btn-link" disabled>Show Filters</button>
-                <button type="button" class="btn-link" disabled>Export</button>
+                <button type="button" class="btn-link" disabled aria-disabled="true"
+                            title="Not available in this release">Show Filters</button>
+                <button type="button" class="btn-link" disabled aria-disabled="true"
+                            title="Not available in this release">Export</button>
             </div>
         </div>
 
@@ -409,8 +405,15 @@
                 </div>
                 <div class="date-range">{{ date_range_label }}</div>
                 <div class="view-controls">
-                    <button type="submit" name="view" value="day" class="view-btn">Day</button>
-                    <button type="submit" name="view" value="week" class="view-btn active">Week</button>
+                    {# `active` follows current_view. It was hardcoded on Week, so choosing Day changed the view --
+                       the handler read the value correctly -- while the toggle still showed Week
+                       selected, and the page contradicted itself. #}
+                    <button type="submit" name="view" value="day"
+                            class="view-btn{% if current_view == 'day' %} active{% endif %}"
+                            {% if current_view == 'day' %}aria-current="true"{% endif %}>Day</button>
+                    <button type="submit" name="view" value="week"
+                            class="view-btn{% if current_view != 'day' %} active{% endif %}"
+                            {% if current_view != 'day' %}aria-current="true"{% endif %}>Week</button>
                     <button type="button" class="view-btn" disabled>month</button>
                     <button type="button" class="view-btn" disabled>year</button>
                 </div>
