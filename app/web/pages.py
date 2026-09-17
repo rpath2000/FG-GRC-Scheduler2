@@ -555,8 +555,12 @@ def instrument_form_submit(
         # Unhandled, this surfaced as HTTP 500 (ForeignKeyViolation: location_id=1 is not
         # present in table "locations") on a deployed app whose master-data tables were empty.
         db.rollback()
+        # Name the likely causes rather than guessing at one. This message used to blame the lookups
+        # outright, and when a unique index rejected a legitimate second unit of the same instrument
+        # model it sent the person to change the wrong field entirely.
         error_message = (
-            "That location, vendor or type no longer exists. Pick a current value and retry."
+            "That could not be saved. Either an instrument with this name and nickname already "
+            "exists, or the location, vendor or type you picked is no longer available."
         )
     except (ValidationError, DuplicateError, NotFoundError, InvalidStatusError) as exc:
         error_message = str(exc)

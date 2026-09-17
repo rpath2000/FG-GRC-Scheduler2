@@ -137,7 +137,21 @@ class Instrument(Base):
     reservations: Mapped[list["Reservation"]] = relationship(back_populates="instrument")
 
     __table_args__ = (
-        Index("uq_instruments_name_lower", func.lower(name), unique=True),
+        # Uniqueness is on (name, nickname), NOT on name alone.
+        #
+        # A unique index on `lower(name)` was copied here from the master-data tables, where it is
+        # correct: the requirements make Location, Vendor, Type and Reservation Purpose names unique.
+        # Instruments are deliberately NOT in that list, and the approved Instruments screen shows
+        # `Biomek i7` three times (Alpha, Beta, Post Malone), `NovaSeq 6000` twice and `QIACube Classic`
+        # twice -- a model name is shared by every unit of that model, and the NICKNAME is what
+        # distinguishes them.
+        #
+        # So the database rejected rows the approved design requires. Creating the second unit answered
+        # "That location, vendor or type no longer exists", because an IntegrityError is all the handler
+        # sees and a foreign key was the likelier cause -- a real defect wearing a misleading message.
+        # `InstrumentService._check_duplicate` already implements the correct rule (normalised name AND
+        # nickname) and raises `DuplicateError`, which the page reports properly.
+        Index("uq_instruments_name_nickname_lower", func.lower(name), func.lower(nickname), unique=True),
     )
 
 
