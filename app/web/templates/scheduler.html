@@ -1,10 +1,3 @@
-Looking at this template, I need to:
-
-1. Wire the date navigation form with proper method/action (it already has `method="get" action="/"` — but the route is `/scheduler`, so I'll point it there)
-2. Add success/error message handling (none currently visible in markup, but I must wrap something — I'll check for a hidden element to reveal... there isn't an explicit one, but the instructions require me to add the conditional wrapping wherever such an element would be hidden). Since no explicit hidden success/error element exists in this markup, I'll focus on the data substitution parts that are clearly required: date values, date range, day headers, and resource rows via loops.
-3. Replace hardcoded rows with a loop over `resources`, and day headers with a loop over `days`.
-
-```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -546,4 +539,3 @@ Looking at this template, I need to:
     </footer>
 </body>
 </html>
-```
