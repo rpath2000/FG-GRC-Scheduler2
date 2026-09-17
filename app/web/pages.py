@@ -427,6 +427,37 @@ def instrument_form_submit(
 
     updated_instrument = None
 
+    # A blank required dropdown is a VALIDATION problem, not a crash. The three lookup selects open
+    # with an empty "- Select -" option, `_parse_int("")` returns None, and `InstrumentCreateDTO`
+    # declares these as `int` -- so submitting the form without choosing raised an unhandled pydantic
+    # ValidationError and the page answered HTTP 500. The release's functional check submits the first
+    # option of every control, which is exactly that placeholder, so this was the last of its four
+    # findings to survive.
+    missing = [
+        label
+        for label, value in (("Location", location_id), ("Vendor", vendor_id), ("Type", type_id))
+        if value is None
+    ]
+    if missing:
+        field_errors = {name.lower(): f"{name} is required." for name in missing}
+        return templates.TemplateResponse(
+            request,
+            "instruments-form.html",
+            {
+                "error_message": f"{', '.join(missing)} {'is' if len(missing) == 1 else 'are'} required.",
+                "field_errors": field_errors,
+                "warning_message": "",
+                "success_message": "",
+                "instrument": None,
+                "instruments": InstrumentService(db).list_active(InstrumentFilterDTO()),
+                "locations": MasterDataService(db).list_locations(active_only=True),
+                "vendors": MasterDataService(db).list_vendors(active_only=True),
+                "types": MasterDataService(db).list_types(active_only=True),
+                "filters": {"nickname": "", "location": "", "vendor": "", "type": "", "favorites": ""},
+            },
+            status_code=400,
+        )
+
     try:
         if inst_id:
             before = instrument_service.get_by_id(inst_id)

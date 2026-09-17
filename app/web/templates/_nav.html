@@ -1,0 +1,64 @@
+{#
+  The one navigation block, included by every page.
+
+  Ten templates carried NINE different navs: some `<ul>`, some bare `<a>`; `index.html` called the
+  home link "Scheduler" while everything else said "Home"; `reservations-new.html` disabled Admin
+  outright; and NOT ONE of them linked to /admin/vendors, /admin/types, /admin/purposes or
+  /reservations/new. Those five pages were built, returned 200, and were unreachable by clicking.
+
+  The approved design specifies Admin as a DROPDOWN over the four master-data screens. No template
+  built one, so the four admin pages hung off a single "Admin" link that always pointed at
+  /admin/locations. This is that dropdown, and it is CSS-only: the application ships no JavaScript
+  outside the Scheduler timeline, so it opens on :hover and :focus-within, which keeps it usable from
+  the keyboard.
+
+  `active` is decided from `request.url.path` rather than passed in by each handler, because a key
+  every handler must remember to set is a key some handler will forget — which is how nine variants
+  happened.
+#}
+{% set path = request.url.path %}
+<nav class="site-nav" aria-label="Main">
+  <a href="/"{% if path in ('/', '/scheduler') %} class="active" aria-current="page"{% endif %}>Home</a>
+  <a href="/instruments"{% if path.startswith('/instruments') %} class="active" aria-current="page"{% endif %}>Instruments</a>
+  <div class="site-nav-group{% if path.startswith('/admin') %} active{% endif %}">
+    <button type="button" class="site-nav-trigger" aria-haspopup="true"
+            aria-expanded="{{ 'true' if path.startswith('/admin') else 'false' }}">Admin ▾</button>
+    <div class="site-nav-menu" role="menu">
+      <a href="/admin/locations" role="menuitem"{% if path == '/admin/locations' %} class="active"{% endif %}>Locations</a>
+      <a href="/admin/vendors" role="menuitem"{% if path == '/admin/vendors' %} class="active"{% endif %}>Vendors</a>
+      <a href="/admin/types" role="menuitem"{% if path == '/admin/types' %} class="active"{% endif %}>Types</a>
+      <a href="/admin/purposes" role="menuitem"{% if path == '/admin/purposes' %} class="active"{% endif %}>Reservation Purposes</a>
+    </div>
+  </div>
+  <a href="/reservations/new"{% if path.startswith('/reservations') %} class="active" aria-current="page"{% endif %}>Reservations</a>
+  <a href="/audit"{% if path == '/audit' %} class="active" aria-current="page"{% endif %}>Audit</a>
+  {# Rendered so the header matches the approved screen, and disabled because Events is out of scope. #}
+  <a href="#" class="disabled" aria-disabled="true" tabindex="-1">Events</a>
+</nav>
+<style>
+  .site-nav { display: flex; align-items: center; gap: 24px; }
+  .site-nav > a,
+  .site-nav-trigger {
+    color: #1B6BE0; text-decoration: none; font-size: 15px; font-family: inherit;
+    background: none; border: 0; padding: 20px 0; cursor: pointer; white-space: nowrap;
+  }
+  .site-nav > a.active,
+  .site-nav-group.active > .site-nav-trigger { border-bottom: 3px solid #1B6BE0; }
+  .site-nav > a.disabled { opacity: .5; pointer-events: none; }
+  .site-nav-group { position: relative; }
+  .site-nav-menu {
+    display: none; position: absolute; top: 100%; left: 0; z-index: 20; min-width: 210px;
+    background: #fff; border: 1px solid #E5E7EB; border-radius: 4px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.12); padding: 4px 0;
+  }
+  /* CSS-only: no JavaScript outside the Scheduler timeline. `focus-within` is what keeps it
+     reachable by keyboard, since a hover-only menu is unusable without a mouse. */
+  .site-nav-group:hover .site-nav-menu,
+  .site-nav-group:focus-within .site-nav-menu { display: block; }
+  .site-nav-menu a {
+    display: block; padding: 9px 16px; color: #1A1A1A; text-decoration: none; font-size: 14px;
+  }
+  .site-nav-menu a:hover,
+  .site-nav-menu a:focus { background: #F7F8FA; }
+  .site-nav-menu a.active { font-weight: 600; color: #071D49; }
+</style>

@@ -235,7 +235,14 @@ a.disabled {
 
 .scheduler-controls {
   display: flex;
+  /* WRAP. Five items share this row -- prev/next, the date picker, the range caption, the
+     Day/Week/month/year toggle and the UTC notice -- and with no wrap and no media query the row
+     overflowed its container on a narrower viewport: the toggle was pushed out of view entirely, so
+     the page appeared to end after the first day column. `.utc-notice` uses `margin-left:auto`, which
+     made it worse by claiming the slack the toggle needed. */
+  flex-wrap: wrap;
   gap: 16px;
+  row-gap: 12px;
   align-items: center;
   margin-bottom: 16px;
   padding: 12px;
@@ -282,6 +289,7 @@ a.disabled {
 
 .view-toggle {
   display: flex;
+  flex-shrink: 0;
   border: 1px solid var(--un-border-color-input);
   border-radius: var(--un-radius-small);
   overflow: hidden;
@@ -315,9 +323,10 @@ a.disabled {
 
 .utc-notice {
   font-size: 12px;
+  flex-basis: 100%;
+  text-align: right;
   color: var(--un-text-muted);
   font-style: italic;
-  margin-left: auto;
 }
 
 .timeline-container {
@@ -352,13 +361,7 @@ a.disabled {
         <div class="logo-badge">G</div>
         <span class="app-title">GRC Instrument Scheduler</span>
       </div>
-      <nav>
-        <ul class="app-nav">
-          <li><a href="/" class="active">Scheduler</a></li>
-          <li><a href="/instruments">Instruments</a></li>
-          <li><a href="#" class="disabled">Events</a></li>
-        </ul>
-      </nav>
+      {% include "_nav.html" %}
     </div>
     <div class="header-right">
       <div class="user-avatar">AH</div>
