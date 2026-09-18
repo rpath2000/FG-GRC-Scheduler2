@@ -457,6 +457,10 @@ footer {
       {% endif %}
 
       <form method="post" action="/admin/vendors">
+        {# The handler branches on vendor_id: present means update_vendor, absent means create_vendor. This
+           field was missing, so pressing Edit and then Save created a DUPLICATE vendor instead of renaming
+           the one being edited. #}
+        {% if vendor %}<input type="hidden" name="vendor_id" value="{{ vendor.vendor_id }}">{% endif %}
         <div class="form-grid">
           <div class="form-group">
             <label for="vendorName">Vendor Name <span style="color: var(--un-error-default);">*</span></label>
@@ -464,7 +468,7 @@ footer {
           </div>
           <div class="form-group">
             <div class="checkbox-group">
-              <input type="checkbox" id="isActive" name="isActive" {% if not vendor or vendor.isActive %}checked{% endif %} />
+              <input type="checkbox" id="isActive" name="isActive" {% if not vendor or vendor.is_active %}checked{% endif %} />
               <label for="isActive">Is Active</label>
             </div>
           </div>
@@ -499,8 +503,6 @@ footer {
           <th style="width: 80px;">Actions</th>
           <th>Vendor Name</th>
           <th style="width: 120px;">Status</th>
-          <th style="width: 180px;">Created (UTC)</th>
-          <th style="width: 180px;">Modified (UTC)</th>
         </tr>
       </thead>
       <tbody>
@@ -508,13 +510,20 @@ footer {
         <tr>
           <td>
             <div class="action-icons">
-              <a href="/admin/vendors?edit={{ vendor.id }}" title="Edit vendor" aria-label="Edit {{ vendor.name }}">🔧</a>
-              {% if vendor.isActive %}
-              <form method="post" action="/admin/vendors/{{ vendor.id }}/delete" style="display:inline;">
+              <a href="/admin/vendors?edit={{ vendor.vendor_id }}" title="Edit vendor" aria-label="Edit {{ vendor.name }}">🔧</a>
+              {# Both buttons used to post to /admin/vendors/{id}/delete and /{id}/restore, and NEITHER ROUTE
+                 EXISTS -- both are absent from openapi.json -- so both were dead. Deactivate now goes to
+                 POST /admin/vendors, which deactivates when `isActive` is absent (name + vendor_id are
+                 required, so they travel as hidden fields). Reactivate goes to a new route, because that
+                 handler has no branch that sets the flag back to true. #}
+              {% if vendor.is_active %}
+              <form method="post" action="/admin/vendors" style="display:inline;">
+                <input type="hidden" name="vendor_id" value="{{ vendor.vendor_id }}">
+                <input type="hidden" name="name" value="{{ vendor.name }}">
                 <button type="submit" style="background:none;border:none;color:var(--un-error-default);cursor:pointer;font-size:1.125rem;padding:0;" title="Deactivate vendor" aria-label="Deactivate {{ vendor.name }}"><span class="sr-only">Deactivate Vendor</span>🗑</button>
               </form>
               {% else %}
-              <form method="post" action="/admin/vendors/{{ vendor.id }}/restore" style="display:inline;">
+              <form method="post" action="/admin/vendors/{{ vendor.vendor_id }}/reactivate" style="display:inline;">
                 <button type="submit" style="background:none;border:none;color:var(--un-success-default);cursor:pointer;font-size:1.125rem;padding:0;" title="Reactivate vendor" aria-label="Reactivate {{ vendor.name }}"><span class="sr-only">Reactivate Vendor</span>↻</button>
               </form>
               {% endif %}
@@ -522,14 +531,12 @@ footer {
           </td>
           <td>{{ vendor.name }}</td>
           <td>
-            {% if vendor.isActive %}
+            {% if vendor.is_active %}
             <span class="status-badge status-active">Active</span>
             {% else %}
             <span class="status-badge status-inactive">Inactive</span>
             {% endif %}
           </td>
-          <td>{{ vendor.createdAt }}</td>
-          <td>{{ vendor.modifiedAt }}</td>
         </tr>
         {% endfor %}
       </tbody>

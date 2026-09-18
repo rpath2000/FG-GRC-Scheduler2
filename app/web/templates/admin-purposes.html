@@ -462,15 +462,15 @@ footer {
         {% for item in purposes %}
         <tr>
           {% if item.is_active %}
-          <td><a href="/admin/purposes?edit={{ item.id }}">{{ item.name }}</a></td>
+          <td><a href="/admin/purposes?edit={{ item.reservation_purpose_id }}">{{ item.name }}</a></td>
           <td><span class="checkmark">✓</span></td>
           <td>
             <form method="post" action="/admin/purposes/edit" style="display: inline;">
-              <input type="hidden" name="purpose_id" value="{{ item.id }}">
+              <input type="hidden" name="purpose_id" value="{{ item.reservation_purpose_id }}">
               <button type="submit" class="icon-btn" title="Edit"><span class="sr-only">Edit Purpose</span>🔧</button>
             </form>
             <form method="post" action="/admin/purposes/delete" style="display: inline;">
-              <input type="hidden" name="purpose_id" value="{{ item.id }}">
+              <input type="hidden" name="purpose_id" value="{{ item.reservation_purpose_id }}">
               <button type="submit" class="icon-btn" title="Deactivate" style="color: var(--un-error-default);"><span class="sr-only">Deactivate Purpose</span>🗑</button>
             </form>
           </td>
@@ -479,7 +479,7 @@ footer {
           <td></td>
           <td>
             <form method="post" action="/admin/purposes/restore" style="display: inline;">
-              <input type="hidden" name="purpose_id" value="{{ item.id }}">
+              <input type="hidden" name="purpose_id" value="{{ item.reservation_purpose_id }}">
               <button type="submit" class="icon-btn" title="Restore" style="color: var(--un-success-default);"><span class="sr-only">Reactivate Purpose</span>↻</button>
             </form>
           </td>

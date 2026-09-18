@@ -1044,6 +1044,45 @@ def admin_vendors_submit(
     )
 
 
+@router.post("/admin/vendors/{vendor_id}/reactivate")
+def admin_vendors_reactivate(
+    request: Request,
+    vendor_id: int,
+    id: Optional[str] = Form(None),
+    db: Session = Depends(get_db),
+):
+    """Bring a deactivated vendor back.
+
+    Nothing could do this before. `POST /admin/vendors` deactivates when `isActive` is absent, but it has no
+    branch that sets the flag back to true, and the `/{id}/restore` route the template posted to did not
+    exist -- so the Reactivate button on this screen was dead while `MasterDataService.reactivate_vendor`
+    sat unused. Mirrors the locations route above, which works.
+    """
+    master_service = MasterDataService(db)
+    audit_service = AuditService(db)
+    success_message = ""
+    error_message = ""
+    target_id = _parse_int(id) or vendor_id
+    try:
+        updated = master_service.reactivate_vendor(target_id)
+        audit_service.log_action(
+            actor="Unknown",
+            action_type="ACTIVATE",
+            entity_type="VENDOR",
+            entity_id=updated.vendor_id,
+            description="Vendor reactivated",
+        )
+        success_message = "Vendor reactivated."
+    except NotFoundError as exc:
+        error_message = str(exc)
+
+    return templates.TemplateResponse(
+        request,
+        "admin-vendors.html",
+        _vendors_ctx(db, success_message, error_message),
+    )
+
+
 # ---------------------------------------------------------------------------
 # Admin: Types
 # ---------------------------------------------------------------------------
